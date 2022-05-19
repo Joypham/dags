@@ -22,7 +22,7 @@ def main(report_date):
         redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
         column = [item.name for item in redshift_cursor.description]
         data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
-        with open(order_list_filename, "wb") as f:
+        with open(f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}", "wb") as f:
             with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
                 data.to_excel(writer, index=False)
 
