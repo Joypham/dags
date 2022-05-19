@@ -15,15 +15,11 @@ def main(report_date):
         # report_date = report_date.strftime('%d%m%Y')
         order_list_cancel = pandas.read_sql(query, redshift_connection)
         redshift_connection.commit()
-        print(order_list_cancel)
-        # redshift_cursor = redshift_connection.cursor()
-        # redshift_cursor.execute(query)
-        # order_list_cancel = redshift_cursor.fetchall()
-        # redshift_cursor.close()
-
-        with open("test.csv", "w") as file:
-            file.write(order_list_cancel.to_csv(index=False))
-        file.close()
+        redshift_connection.close()
+        order_list_cancel.to_csv("nammk_test.csv", index=False)
+        # with open("test.csv", "w") as file:
+        #     file.write(order_list_cancel.to_csv(index=False))
+        # file.close()
 
         # s = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
         # remote_path = "/urbox_data/"
