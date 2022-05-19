@@ -1,4 +1,5 @@
 from Config import *
+from Email import Email
 
 import pandas
 import psycopg2
@@ -17,6 +18,7 @@ def main(report_date):
         redshift_connection.commit()
         redshift_connection.close()
         order_list_cancel.to_csv("nammk_test.csv", index=False)
+        Email.send_mail_with_attachment("nam.mk@urbox.vn", "test subject", "test_content", ['nammk_test.csv'])
         # with open("test.csv", "w") as file:
         #     file.write(order_list_cancel.to_csv(index=False))
         # file.close()

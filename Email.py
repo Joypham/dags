@@ -12,24 +12,27 @@ class Email:
 
     @staticmethod
     def send_mail_with_attachment(receiver, subject, content, attachments):
-        message = MIMEMultipart()
-        message['From'] = "{} <{}>".format(EMAIL_SENDER_NAME, EMAIL_SENDER_ADDRESS)
-        message['To'] = ' , '.join(receiver)
-        message['Subject'] = subject
-        message.attach(MIMEText(content, 'html'))
+        try:
+            message = MIMEMultipart()
+            message['From'] = "{} <{}>".format(EMAIL_SENDER_NAME, EMAIL_SENDER_ADDRESS)
+            message['To'] = ' , '.join(receiver)
+            message['Subject'] = subject
+            message.attach(MIMEText(content, 'html'))
 
-        for file in attachments:
-            attachment = open(file, "rb")
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(attachment.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', "attachment; filename= %s" % file_name[file_name.rfind('\\') + 1:])
-            message.attach(part)
+            for file in attachments:
+                attachment = open(file, "rb")
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(attachment.read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', "attachment; filename= %s" % file_name[file_name.rfind('\\') + 1:])
+                message.attach(part)
 
-        session = smtplib.SMTP('smtp.gmail.com', 587)
-        session.starttls()
-        session.login(EMAIL_SENDER_ADDRESS, EMAIL_SENDER_PASSWORD)
-        text = message.as_string()
-        session.sendmail(EMAIL_SENDER_ADDRESS, receiver, text)
-        session.quit()
-        print('Mail Sent!!!')
+            session = smtplib.SMTP('smtp.gmail.com', 587)
+            session.starttls()
+            session.login(EMAIL_SENDER_ADDRESS, EMAIL_SENDER_PASSWORD)
+            text = message.as_string()
+            session.sendmail(EMAIL_SENDER_ADDRESS, receiver, text)
+            session.quit()
+            print('Mail Sent!!!')
+        except Exception as e:
+            print(e)
