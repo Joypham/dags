@@ -22,12 +22,12 @@ def main(report_date):
         redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
         column = [item.name for item in redshift_cursor.description]
         data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
-        with open(f"{STORAGE_DIR}/vna_report/{report_date}/{order_list_filename}", "wb") as f:
+        with open(f"{STORAGE_DIR}/vna_report/{order_list_filename}", "wb") as f:
             with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
                 data.to_excel(writer, index=False)
 
         # data.to_excel(f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}", index=False)
-        Email.send_mail_with_attachment("nam.mk@urbox.vn", "test subject", "test_content", [f"{STORAGE_DIR}/vna_report/{report_date}/{order_list_filename}"])
+        Email.send_mail_with_attachment("nam.mk@urbox.vn", "test subject", "test_content", [f"{STORAGE_DIR}/vna_report/{order_list_filename}"])
 
         # # report_date = report_date.strftime('%d%m%Y')
         # order_list_cancel = pandas.read_sql(query, redshift_connection)

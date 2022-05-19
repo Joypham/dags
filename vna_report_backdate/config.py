@@ -26,9 +26,9 @@ dag = DAG(
     schedule_interval=None,
     description='DAG xuất báo cáo cho VNA theo ngày nhất định. Chỉ chạy bằng Trigger DAG w/ config',
     tags=["vna", "manual", "v0.2.1"],
-    params={
-        "report_date": "2022-5-16"
-    }
+    # params={
+    #     "report_date": "2022-5-16"
+    # }
 )
 
 export_report_and_upload = PythonOperator(
@@ -36,7 +36,8 @@ export_report_and_upload = PythonOperator(
     dag=dag,
     python_callable=main,
     op_kwargs={
-        'report_date': "{{dag_run.conf['report_date']}}"
+        # 'report_date': "{{dag_run.conf['report_date']}}"
+        'report_date': "2022-5-16"
     }
 )
 export_report_and_upload  # noqa
