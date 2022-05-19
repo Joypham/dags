@@ -36,4 +36,4 @@ EMAIL_SENDER_ADDRESS = "datateam@urbox.vn"
 EMAIL_SENDER_PASSWORD = "34d#7#39H5^E%^ck"
 
 # Ect
-STORAGE_DIR = "/opt/airflow/storages/"
+STORAGE_DIR = "/opt/airflow/storages"
