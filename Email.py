@@ -24,7 +24,7 @@ class Email:
                 part = MIMEBase('application', 'octet-stream')
                 part.set_payload(attachment.read())
                 encoders.encode_base64(part)
-                part.add_header('Content-Disposition', "attachment; filename= %s" % file_name[file_name.rfind('\\') + 1:])
+                part.add_header('Content-Disposition', "attachment; filename= %s" % file[file.rfind('\\') + 1:])
                 message.attach(part)
 
             session = smtplib.SMTP('smtp.gmail.com', 587)
