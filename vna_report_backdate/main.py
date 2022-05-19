@@ -19,10 +19,11 @@ def main(report_date):
         cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
 
         redshift_cursor = redshift_connection.cursor()
-        result = redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
+        redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
         column = [item.name for item in redshift_cursor.description]
         data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
-        print(data)
+        data.to_excel(f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}", index=False)
+        Email.send_mail_with_attachment("nam.mk@urbox.vn", "test subject", "test_content", [f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}"])
 
         # # report_date = report_date.strftime('%d%m%Y')
         # order_list_cancel = pandas.read_sql(query, redshift_connection)
