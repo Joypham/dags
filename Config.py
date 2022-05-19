@@ -29,3 +29,8 @@ REDSHIFT_CONFIG = {
     "user": "airflow_user",
     "password": "RB25yvtUMZdyRXbg"
 }
+
+# Email
+EMAIL_SENDER_NAME = "Team Data"
+EMAIL_SENDER_ADDRESS = "datateam@urbox.vn"
+EMAIL_SENDER_PASSWORD = "34d#7#39H5^E%^ck"
