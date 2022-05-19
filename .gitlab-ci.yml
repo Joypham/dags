@@ -8,7 +8,7 @@ deploy:production:
     - production
   script:
   - cd $SOURCE_DIR
-  - git pull
+  - git pull origin release
   - cd ../
   - >
     if [ "$REBULD_FLAG" == "true" ]; then
