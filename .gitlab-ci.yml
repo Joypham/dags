@@ -1,0 +1,22 @@
+stages:
+- deploy
+- notify
+
+deploy:production:
+  stage: deploy
+  tags:
+    - production
+  script:
+  - cd $SOURCE_DIR
+  - git pull
+  - cd ../
+  - >
+    if [ "$REBULD_FLAG" == "true" ]; then
+      sudo docker-compose up -d --force-recreate --no-deps --build airflow-init
+    fi
+  - bash /usr/local/bin/notify.sh
+  environment:
+    name: production
+  when: manual
+  only:
+    - release
