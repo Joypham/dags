@@ -22,7 +22,11 @@ def main(report_date):
         redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
         column = [item.name for item in redshift_cursor.description]
         data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
-        data.to_excel(f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}", index=False)
+        with open(order_list_filename, "w") as f:
+            with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
+                data.to_excel(writer, index=False)
+
+        # data.to_excel(f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}", index=False)
         Email.send_mail_with_attachment("nam.mk@urbox.vn", "test subject", "test_content", [f"{STORAGE_DIR}/vna_report/{report_date_filename}/{order_list_filename}"])
 
         # # report_date = report_date.strftime('%d%m%Y')
