@@ -5,6 +5,7 @@ from vna_report_backdate.param import *
 
 import pandas
 import psycopg2
+import psycopg2.extras
 
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
@@ -18,7 +19,7 @@ def main(report_date):
         code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
         cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
 
-        redshift_cursor = redshift_connection.cursor()
+        redshift_cursor = redshift_connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
         result = redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
         data = pandas.DataFrame(redshift_cursor.fetchall(), columns=redshift_cursor.keys())
         print(data)
