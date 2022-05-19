@@ -20,7 +20,7 @@ def main(report_date):
 
         redshift_cursor = redshift_connection.cursor()
         result = redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
-        data = pandas.DataFrame(redshift_cursor.fetchall(), columns=result.keys())
+        data = pandas.DataFrame(redshift_cursor.fetchall(), columns=redshift_cursor.keys())
         print(data)
 
         # # report_date = report_date.strftime('%d%m%Y')
