@@ -18,9 +18,9 @@ def main(report_date):
         code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
         cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
 
-        cursor = redshift_connection.cursor()
-        result = cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
-        data = pandas.DataFrame(result.fetchall(), columns=result.keys())
+        redshift_cursor = redshift_connection.cursor()
+        result = redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
+        data = pandas.DataFrame(redshift_cursor.fetchall(), columns=result.keys())
         print(data)
 
         # # report_date = report_date.strftime('%d%m%Y')
