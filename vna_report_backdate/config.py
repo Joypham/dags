@@ -27,7 +27,7 @@ dag = DAG(
     description='DAG xuất báo cáo cho VNA theo ngày nhất định. Chỉ chạy bằng Trigger DAG w/ config',
     tags=["vna", "manual", "v0.2.1"],
     params={
-        "report_date": "%Y-%m-%d"
+        "report_date": "2022-5-16"
     }
 )
 
