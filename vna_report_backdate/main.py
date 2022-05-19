@@ -1,6 +1,6 @@
 from Config import *
 
-import csv
+import pandas
 import psycopg2
 
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
@@ -13,11 +13,13 @@ def main(report_date):
             SELECT * FROM tmp_table;
         """
         # report_date = report_date.strftime('%d%m%Y')
-
-        redshift_cursor = redshift_connection.cursor()
-        redshift_cursor.execute(query)
-        order_list_cancel = redshift_cursor.fetchall()
-        redshift_cursor.close()
+        order_list_cancel = pandas.read_sql(query, redshift_connection)
+        redshift_connection.commit()
+        print(order_list_cancel)
+        # redshift_cursor = redshift_connection.cursor()
+        # redshift_cursor.execute(query)
+        # order_list_cancel = redshift_cursor.fetchall()
+        # redshift_cursor.close()
 
         with open("test.csv", "w") as file:
             file.write(order_list_cancel.to_csv(index=False))
