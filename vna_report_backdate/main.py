@@ -20,11 +20,9 @@ def main(report_date):
 
         redshift_cursor = redshift_connection.cursor()
         result = redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
-        print(redshift_cursor.description)
         column = [item.name for item in redshift_cursor.description]
-        print(column)
-        # data = pandas.DataFrame(redshift_cursor.fetchall(), columns=redshift_cursor.keys())
-        # print(data)
+        data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
+        print(data)
 
         # # report_date = report_date.strftime('%d%m%Y')
         # order_list_cancel = pandas.read_sql(query, redshift_connection)
