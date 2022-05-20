@@ -13,9 +13,21 @@ import psycopg2
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
 
-def create_report_file(report_date_object, **kwargs):
+def generate_report_date(report_date=None, **kwargs):
+    if report_date is None:
+        report_date_object = datetime.today() - timedelta(days=1)
+    else:
+        report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
     task_instance = kwargs['task_instance']
-    report_date = report_date_object.strftime('%Y-%m-%d')
+    task_instance.xcom_push(
+        key='report_date',
+        value=report_date_object.strftime('%Y-%m-%d')
+    )
+
+
+def create_report_file(report_date, **kwargs):
+    task_instance = kwargs['task_instance']
+    report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
     report_date_filename = report_date_object.strftime('%d%m%Y')
 
     try:

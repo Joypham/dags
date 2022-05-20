@@ -78,5 +78,5 @@ end_dag = PythonOperator(
     }
 )
 
-create_report_file >> send_email_internal >> end_dag
-create_report_file >> upload_to_vna_sftp >> end_dag
+generate_report_date >> create_report_file >> send_email_internal >> end_dag
+generate_report_date >> create_report_file >> upload_to_vna_sftp >> end_dag
