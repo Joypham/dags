@@ -37,7 +37,7 @@ generate_report_date = PythonOperator(
     task_id="generate_report_date",
     python_callable=generate_report_date,
     op_kwargs={
-        'report_date': "{{dag_run.conf['report_date']}}"
+        'report_date': "{{params.report_date}}"
     }
 )
 create_report_file = PythonOperator(
