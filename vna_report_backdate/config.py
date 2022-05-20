@@ -44,6 +44,7 @@ send_email_internal = PythonOperator(
     dag=dag,
     task_id="send_email_internal",
     python_callable=send_email_internal,
+    render_template_as_native_obj=True,
     op_kwargs={
         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
         "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
@@ -54,6 +55,7 @@ upload_to_vna_sftp = PythonOperator(
     dag=dag,
     task_id="upload_to_vna_sftp",
     python_callable=upload_to_vna_sftp,
+    render_template_as_native_obj=True,
     op_kwargs={
         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
         "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
