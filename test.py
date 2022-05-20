@@ -26,13 +26,13 @@ dag = DAG(
 )
 
 
-def method1():
-    return "Nam"
-
-
-def method2(name, **kwargs):
+def method1(**kwargs):
     task_instance = kwargs['task_instance']
     task_instance.xcom_push(key='name', value="Nam")
+
+
+def method2(name):
+    print(f"Hello {name}")
 
 
 task_1 = PythonOperator(
