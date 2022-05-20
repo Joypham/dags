@@ -5,6 +5,7 @@ from Config import *
 from Email import Email
 from vna_report_backdate.param import *
 
+import json
 import os
 import pandas
 import pysftp as sftp
@@ -43,7 +44,7 @@ def create_report_file(report_date, **kwargs):
         )
         task_instance.xcom_push(
             key='list_file',
-            value=[
+            value=json.dumps([
                 {
                     "title": order_list_filename,
                     "path": f"{daily_report_path}/{order_list_filename}"
@@ -56,7 +57,7 @@ def create_report_file(report_date, **kwargs):
                     "title": order_list_filename,
                     "path": f"{cancelled_order_filename}/{cancelled_order_filename}"
                 },
-            ]
+            ])
         )
     except Exception as e:
         print("DAG error: ")
@@ -78,24 +79,24 @@ def create_report_file(report_date, **kwargs):
 def send_email_internal(report_date, result, list_file):
     if result is False:
         Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
-    elif list_file is False:
+    elif list_file is None:
         Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
     else:
         Email.send_mail_with_attachment(
             receiver=[INTERNAL_EMAIL],
             subject="VNA Report Daily",
             content=f"File báo cáo gửi VNA ngày {report_date}",
-            attachments=list_file
+            attachments=json.loads(list_file)
         )
 
 
 def upload_to_vna_sftp(result, list_file):
     print("Upload to VNA here")
-    # if result is True and list_file:
+    # if result is True and list_file is not None:
     #     for host in VNA_HOST:
     #         server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
     #         with server.cd(VNA_FOLDER_PATH):  # chdir to public
-    #             for file in list_file:
+    #             for file in json.loads(list_file):
     #                 server.put(file.get("path"))
     #         server.close()
 
