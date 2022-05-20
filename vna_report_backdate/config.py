@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 
-from vna_report_backdate.main import create_report_file, send_email_internal, upload_to_vna_sftp
+from vna_report_backdate.main import create_report_file, send_email_internal, upload_to_vna_sftp, end_dag
 
 
 default_args = {
@@ -41,28 +41,32 @@ create_report_file = PythonOperator(
     }
 
 )
+send_email_internal = PythonOperator(
+    dag=dag,
+    task_id="send_email_internal",
+    python_callable=send_email_internal,
+    op_kwargs={
+        "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
+        "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
+    }
+)
+upload_to_vna_sftp = PythonOperator(
+    dag=dag,
+    task_id="upload_to_vna_sftp",
+    python_callable=upload_to_vna_sftp,
+    op_kwargs={
+        "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
+        "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
+    }
+)
+end_dag = PythonOperator(
+    dag=dag,
+    task_id="end_dag",
+    python_callable=end_dag,
+    op_kwargs={
+        "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
+    }
+)
 
-create_report_file
-# send_email_internal = PythonOperator(
-#     dag=dag,
-#     task_id="send_email_internal",
-#     python_callable=send_email_internal,
-#     op_kwargs={
-#         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
-#         "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
-#         "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
-#     }
-# )
-# upload_to_vna_sftp = PythonOperator(
-#     dag=dag,
-#     task_id="upload_to_vna_sftp",
-#     python_callable=upload_to_vna_sftp,
-#     op_kwargs={
-#         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
-#         "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
-#     }
-# )
-#
-# create_report_file >> send_email_internal
-# create_report_file >> upload_to_vna_sftp
-
+create_report_file >> send_email_internal >> end_dag
+create_report_file >> upload_to_vna_sftp >> end_dag
