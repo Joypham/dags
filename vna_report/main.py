@@ -14,7 +14,7 @@ redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
 
 def generate_report_date(report_date=None, **kwargs):
-    print(report_date)
+    print(not report_date)
     if report_date is None or report_date == "%Y-%m-%d":
         report_date_object = datetime.today() - timedelta(days=1)
     else:
