@@ -19,7 +19,7 @@ default_args = {
 }
 
 dag = DAG(
-    'vna_report_upload_backdate',
+    'vna_report_upload',
     default_args=default_args,
     max_active_runs=1,
     concurrency=32,
