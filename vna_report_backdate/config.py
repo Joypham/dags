@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 
-from vna_report_backdate.main import main
+from vna_report_backdate.main import create_report_file, send_email_internal, upload_to_vna_sftp
 
 
 default_args = {
@@ -31,12 +31,44 @@ dag = DAG(
     }
 )
 
-export_report_and_upload = PythonOperator(
-    task_id='export_report_and_upload',
+create_report_file = PythonOperator(
     dag=dag,
-    python_callable=main,
+    task_id="create_report_file",
+    python_callable=create_report_file,
     op_kwargs={
         'report_date': "{{dag_run.conf['report_date']}}"
     }
+
 )
-export_report_and_upload  # noqa
+send_email_internal = PythonOperator(
+    dag=dag,
+    task_id="send_email_internal",
+    python_callable=send_email_internal,
+    op_kwargs={
+        "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
+        "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
+        "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
+    }
+)
+upload_to_vna_sftp = PythonOperator(
+    dag=dag,
+    task_id="upload_to_vna_sftp",
+    python_callable=upload_to_vna_sftp,
+    op_kwargs={
+        "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
+        "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
+    }
+)
+
+create_report_file >> send_email_internal
+create_report_file >> upload_to_vna_sftp
+
+# export_report_and_upload = PythonOperator(
+#     task_id='export_report_and_upload',
+#     dag=dag,
+#     python_callable=main,
+#     op_kwargs={
+#         'report_date': "{{dag_run.conf['report_date']}}"
+#     }
+# )
+# export_report_and_upload  # noqa

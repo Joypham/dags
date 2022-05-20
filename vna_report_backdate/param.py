@@ -4,6 +4,8 @@ VNA_HOST = [
 ]
 VNA_FOLDER_PATH = "/urbox_data/"
 
+INTERNAL_EMAIL = "nam.mk@urbox.vn"
+
 ORDER_LIST_QUERY = """
     SELECT
         oddt.id AS order_detail_id,
