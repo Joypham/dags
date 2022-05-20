@@ -4,7 +4,7 @@ VNA_HOST = [
 ]
 VNA_FOLDER_PATH = "/urbox_data/"
 
-INTERNAL_EMAIL = "nam.mk@urbox.vn"
+INTERNAL_EMAIL = ["nam.mk@urbox.vn", "hanh.ph@urbox.vn"]
 
 ORDER_LIST_QUERY = """
     SELECT

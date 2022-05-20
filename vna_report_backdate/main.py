@@ -79,13 +79,13 @@ def create_report_file(report_date, **kwargs):
 def send_email_internal(result, report_date, list_file):
     if result is False or list_file is None:
         Email.send_mail(
-            receiver=[INTERNAL_EMAIL],
+            receiver=INTERNAL_EMAIL,
             subject=f"[VNA Report Daily] Lỗi ngày {report_date}",
             content=f"Có lỗi không mong muốn xảy ra khi sinh báo cáo ngày {report_date}. Liên hệ nammk để xử lý!"
         )
     else:
         Email.send_mail_with_attachment(
-            receiver=[INTERNAL_EMAIL],
+            receiver=INTERNAL_EMAIL,
             subject=f"[VNA Report Daily] Báo cáo ngày {report_date}",
             content=f"Đã tạo, lưu trữ và gửi cho VNA các file báo cáo ngày {report_date}",
             attachments=list_file
@@ -93,21 +93,20 @@ def send_email_internal(result, report_date, list_file):
 
 
 def upload_to_vna_sftp(result, list_file):
-    print("Upload to VNA here")
-    # if result is True and list_file is not None:
-    #     for host in VNA_HOST:
-    #         server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
-    #         with server.cd(VNA_FOLDER_PATH):  # chdir to public
-    #             for file in list_file:
-    #                 server.put(file.get("path"))
-    #         server.close()
+    if result is True and list_file is not None:
+        for host in VNA_HOST:
+            server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
+            with server.cd(VNA_FOLDER_PATH):  # chdir to public
+                for file in list_file:
+                    server.put(file.get("path"))
+            server.close()
 
 
 def end_dag(report_date):
     Utility.send_telegram_message(
         TELEGRAM_BOT_TOKEN,
         TELEGRAM_CHAT_IDS,
-        f"DAGs gửi báo cáo VNA bổ sung ngày {report_date} đã chạy xong."
+        f"DAGs gửi báo cáo VNA bổ sung ngày {report_date} đã chạy xong. Kiểm tra email để xem chi tiết."
     )
 
 
