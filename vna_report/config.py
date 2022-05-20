@@ -45,7 +45,7 @@ create_report_file = PythonOperator(
     task_id="create_report_file",
     python_callable=create_report_file,
     op_kwargs={
-        "report_date_object": "{{ti.xcom_pull(task_ids='generate_report_date', key='report_date')}}"
+        "report_date": "{{ti.xcom_pull(task_ids='generate_report_date', key='report_date')}}"
     }
 
 )
