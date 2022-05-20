@@ -47,6 +47,7 @@ send_email_internal = PythonOperator(
     python_callable=send_email_internal,
     op_kwargs={
         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
+        "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
         "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
     }
 )
