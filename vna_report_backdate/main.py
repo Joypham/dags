@@ -13,9 +13,6 @@ import psycopg2
 
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
-TELEGRAM_BOT_TOKEN = "5201525831:AAFlBWov9384pX0YQdGluyijbs3YH6D7v5g"
-TELEGRAM_CHAT_IDS = [1435368685]
-
 
 def create_report_file(report_date, **kwargs):
     Utility.send_telegram_message(

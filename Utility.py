@@ -1,6 +1,4 @@
 import telegram
-import time
-import uuid
 
 
 class Utility:
