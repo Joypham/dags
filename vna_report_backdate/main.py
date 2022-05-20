@@ -80,6 +80,7 @@ def send_email_internal(result, report_date, list_file):
     print(result)
     print(report_date)
     print(list_file)
+    print(result is False or list_file is None)
     if result is False or list_file is None:
         Email.send_mail(
             receiver=INTERNAL_EMAIL,
@@ -87,12 +88,13 @@ def send_email_internal(result, report_date, list_file):
             content=f"Có lỗi không mong muốn xảy ra khi sinh báo cáo ngày {report_date}. Liên hệ nammk để xử lý!"
         )
     else:
-        Email.send_mail_with_attachment(
-            receiver=[INTERNAL_EMAIL],
-            subject=f"[VNA Report Daily] Báo cáo ngày {report_date}",
-            content=f"Đã tạo, lưu trữ và gửi cho VNA các file báo cáo ngày {report_date}",
-            attachments=json.loads(list_file)
-        )
+        print("Ngon")
+        # Email.send_mail_with_attachment(
+        #     receiver=[INTERNAL_EMAIL],
+        #     subject=f"[VNA Report Daily] Báo cáo ngày {report_date}",
+        #     content=f"Đã tạo, lưu trữ và gửi cho VNA các file báo cáo ngày {report_date}",
+        #     attachments=json.loads(list_file)
+        # )
 
 
 def upload_to_vna_sftp(result, list_file):
