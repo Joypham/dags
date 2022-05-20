@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 
 from Config import *
 from Email import Email
+from Utility import Utility
 from vna_report_backdate.param import *
 
-import json
 import os
 import pandas
 import pysftp as sftp
@@ -13,91 +13,91 @@ import psycopg2
 
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
+TELEGRAM_BOT_TOKEN = "5201525831:AAFlBWov9384pX0YQdGluyijbs3YH6D7v5g"
+TELEGRAM_CHAT_IDS = [1435368685]
+
 
 def create_report_file(report_date, **kwargs):
+    Utility.send_telegram_message(
+        TELEGRAM_BOT_TOKEN,
+        TELEGRAM_CHAT_IDS,
+        "Tin nhắn test từ bot telegram"
+    )
     task_instance = kwargs['task_instance']
 
-    try:
-        report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
-        report_date = report_date_object.strftime('%Y-%m-%d')
-        report_date_filename = report_date_object.strftime('%d%m%Y')
-        order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
-        code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
-        cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
-
-        daily_report_path = f"{STORAGE_DIR}/vna_report/{report_date}"
-
-        if not os.path.exists(daily_report_path):
-            os.mkdir(daily_report_path)
-
-        generate_excel(daily_report_path, order_list_filename, ORDER_LIST_QUERY.format(report_date=report_date))
-        generate_excel(daily_report_path, code_usage_filename, CODE_USAGE_QUERY.format(report_date=report_date))
-        generate_excel(daily_report_path, cancelled_order_filename, CANCELLED_ORDER_QUERY.format(report_date=report_date))
-
-        task_instance.xcom_push(
-            key='result',
-            value=False
-        )
-        task_instance.xcom_push(
-            key='report_date',
-            value=report_date
-        )
-        task_instance.xcom_push(
-            key='list_file',
-            value=json.dumps([
-                {
-                    "title": order_list_filename,
-                    "path": f"{daily_report_path}/{order_list_filename}"
-                },
-                {
-                    "title": code_usage_filename,
-                    "path": f"{daily_report_path}/{code_usage_filename}"
-                },
-                {
-                    "title": cancelled_order_filename,
-                    "path": f"{daily_report_path}/{cancelled_order_filename}"
-                },
-            ])
-        )
-    except Exception as e:
-        print("DAG error: ")
-        print(e)
-        task_instance.xcom_push(
-            key='result',
-            value=False
-        )
-        task_instance.xcom_push(
-            key='report_date',
-            value=report_date
-        )
-        task_instance.xcom_push(
-            key='list_file',
-            value=None
-        )
+    # try:
+    #     report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
+    #     report_date = report_date_object.strftime('%Y-%m-%d')
+    #     report_date_filename = report_date_object.strftime('%d%m%Y')
+    #     order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
+    #     code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
+    #     cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
+    #
+    #     daily_report_path = f"{STORAGE_DIR}/vna_report/{report_date}"
+    #
+    #     if not os.path.exists(daily_report_path):
+    #         os.mkdir(daily_report_path)
+    #
+    #     generate_excel(daily_report_path, order_list_filename, ORDER_LIST_QUERY.format(report_date=report_date))
+    #     generate_excel(daily_report_path, code_usage_filename, CODE_USAGE_QUERY.format(report_date=report_date))
+    #     generate_excel(daily_report_path, cancelled_order_filename, CANCELLED_ORDER_QUERY.format(report_date=report_date))
+    #
+    #     task_instance.xcom_push(
+    #         key='result',
+    #         value=True
+    #     )
+    #     task_instance.xcom_push(
+    #         key='report_date',
+    #         value=report_date
+    #     )
+    #     task_instance.xcom_push(
+    #         key='list_file',
+    #         value=[
+    #             {
+    #                 "title": order_list_filename,
+    #                 "path": f"{daily_report_path}/{order_list_filename}"
+    #             },
+    #             {
+    #                 "title": code_usage_filename,
+    #                 "path": f"{daily_report_path}/{code_usage_filename}"
+    #             },
+    #             {
+    #                 "title": cancelled_order_filename,
+    #                 "path": f"{daily_report_path}/{cancelled_order_filename}"
+    #             },
+    #         ]
+    #     )
+    # except Exception as e:
+    #     print("DAG error: ")
+    #     print(e)
+    #     task_instance.xcom_push(
+    #         key='result',
+    #         value=False
+    #     )
+    #     task_instance.xcom_push(
+    #         key='report_date',
+    #         value=report_date
+    #     )
+    #     task_instance.xcom_push(
+    #         key='list_file',
+    #         value=None
+    #     )
 
 
 def send_email_internal(result, report_date, list_file):
-    print(result)
-    print(type(result))
-    print(report_date)
-    print(list_file)
-    print(result is False)
-    print(list_file is None)
-    print(result is False or list_file is None)
     if result is False or list_file is None:
         Email.send_mail(
-            receiver=INTERNAL_EMAIL,
+            receiver=[INTERNAL_EMAIL],
             subject=f"[VNA Report Daily] Lỗi ngày {report_date}",
             content=f"Có lỗi không mong muốn xảy ra khi sinh báo cáo ngày {report_date}. Liên hệ nammk để xử lý!"
         )
     else:
-        print("Ngon")
-        # Email.send_mail_with_attachment(
-        #     receiver=[INTERNAL_EMAIL],
-        #     subject=f"[VNA Report Daily] Báo cáo ngày {report_date}",
-        #     content=f"Đã tạo, lưu trữ và gửi cho VNA các file báo cáo ngày {report_date}",
-        #     attachments=json.loads(list_file)
-        # )
+        Email.send_mail_with_attachment(
+            receiver=[INTERNAL_EMAIL],
+            subject=f"[VNA Report Daily] Báo cáo ngày {report_date}",
+            content=f"Đã tạo, lưu trữ và gửi cho VNA các file báo cáo ngày {report_date}",
+            attachments=list_file
+        )
 
 
 def upload_to_vna_sftp(result, list_file):
@@ -106,7 +106,7 @@ def upload_to_vna_sftp(result, list_file):
     #     for host in VNA_HOST:
     #         server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
     #         with server.cd(VNA_FOLDER_PATH):  # chdir to public
-    #             for file in json.loads(list_file):
+    #             for file in list_file:
     #                 server.put(file.get("path"))
     #         server.close()
 

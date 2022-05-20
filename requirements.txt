@@ -1,2 +1,2 @@
-openpyxl==3.0.9
+python-telegram-bot==13.11
 XlsxWriter==3.0.3

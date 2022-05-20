@@ -35,5 +35,12 @@ EMAIL_SENDER_NAME = "Team Data"
 EMAIL_SENDER_ADDRESS = "datateam@urbox.vn"
 EMAIL_SENDER_PASSWORD = "34d#7#39H5^E%^ck"
 
+# Telegram
+TELEGRAM_BOT_TOKEN = "5272539184:AAHTU4Y-ZpcAtDf10LZVua43z4bdu858bAI"
+TELEGRAM_CHAT_ID = [
+    1435368685,     # nam.mk
+    5038057494,     # hanh.ph
+]
+
 # Ect
 STORAGE_DIR = "/opt/airflow/storages"
