@@ -78,8 +78,11 @@ def create_report_file(report_date, **kwargs):
 
 def send_email_internal(result, report_date, list_file):
     print(result)
+    print(type(result))
     print(report_date)
     print(list_file)
+    print(result is False)
+    print(list_file is None)
     print(result is False or list_file is None)
     if result is False or list_file is None:
         Email.send_mail(
