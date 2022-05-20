@@ -26,22 +26,34 @@ def main(report_date):
         if not os.path.exists(daily_report_path):
             os.mkdir(daily_report_path)
 
-        redshift_cursor = redshift_connection.cursor()
-        redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
-        column = [item.name for item in redshift_cursor.description]
-        data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
-        with open(f"{daily_report_path}/{order_list_filename}", "wb") as f:
-            with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
-                data.to_excel(writer, index=False)
+        # redshift_cursor = redshift_connection.cursor()
+        # redshift_cursor.execute(ORDER_LIST_QUERY.format(start_date=report_date, end_date=report_date))
+        # column = [item.name for item in redshift_cursor.description]
+        # data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
+        # with open(f"{daily_report_path}/{order_list_filename}", "wb") as f:
+        #     with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
+        #         data.to_excel(writer, index=False)
+
+        generate_excel(daily_report_path, order_list_filename, ORDER_LIST_QUERY.format(report_date=report_date))
+        generate_excel(daily_report_path, code_usage_filename, CODE_USAGE_QUERY.format(report_date=report_date))
+        generate_excel(daily_report_path, cancelled_order_filename, CANCELLED_ORDER_QUERY.format(report_date=report_date))
 
         Email.send_mail_with_attachment(
-            receiver="nam.mk@urbox.vn",
+            receiver=["nam.mk@urbox.vn"],
             subject="test subject",
             content="test_content",
             attachments=[
                 {
                     "title": order_list_filename,
                     "path": f"{daily_report_path}/{order_list_filename}"
+                },
+                {
+                    "title": code_usage_filename,
+                    "path": f"{daily_report_path}/{code_usage_filename}"
+                },
+                {
+                    "title": cancelled_order_filename,
+                    "path": f"{daily_report_path}/{cancelled_order_filename}"
                 }
             ]
         )
@@ -65,3 +77,13 @@ def main(report_date):
         # # # s.close()
     except Exception as e:
         print(e)
+
+
+def generate_excel(path, filename, query):
+    redshift_cursor = redshift_connection.cursor()
+    redshift_cursor.execute(query)
+    column = [item.name for item in redshift_cursor.description]
+    data = pandas.DataFrame(redshift_cursor.fetchall(), columns=column)
+    with open(f"{path}/{filename}", "wb") as f:
+        with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
+            data.to_excel(writer, index=False)

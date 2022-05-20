@@ -14,8 +14,8 @@ class Email:
     def send_mail_with_attachment(receiver, subject, content, attachments):
         try:
             message = MIMEMultipart()
-            message['From'] = "{} <{}>".format(EMAIL_SENDER_NAME, EMAIL_SENDER_ADDRESS)
-            message['To'] = ' , '.join(receiver)
+            message['From'] = f"{EMAIL_SENDER_NAME} <{EMAIL_SENDER_ADDRESS}>"
+            message['To'] = ','.join(receiver)
             message['Subject'] = subject
             message.attach(MIMEText(content, 'html'))
 

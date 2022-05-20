@@ -29,7 +29,7 @@ ORDER_LIST_QUERY = """
     WHERE
         od.status = 2
         AND od.is_paid = 2
-        AND CAST(PUBLIC.convert_timezone(oddt.created) AS date) BETWEEN '{start_date}' AND '{end_date}'
+        AND CAST(PUBLIC.convert_timezone(oddt.created) AS date) BETWEEN '{report_date}' AND '{report_date}'
     ORDER BY
         od.id,
         oddt.id
@@ -73,7 +73,7 @@ CODE_USAGE_QUERY = """
         AND cart.status = 2 -- dơn hang binh thuong
         AND gc.used IS NOT NULL 
         AND gc.used > 0 
-        AND CAST(PUBLIC.convert_timezone(gc.used) AS date) BETWEEN '{start_date}' AND '{end_date}'
+        AND CAST(PUBLIC.convert_timezone(gc.used) AS date) BETWEEN '{report_date}' AND '{report_date}'
     ORDER BY
         gc.used DESC
     ;
