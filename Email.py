@@ -20,11 +20,11 @@ class Email:
             message.attach(MIMEText(content, 'html'))
 
             for file in attachments:
-                attachment = open(file, "rb")
+                attachment = open(file.get("path"), "rb")
                 part = MIMEBase('application', 'octet-stream')
                 part.set_payload(attachment.read())
                 encoders.encode_base64(part)
-                part.add_header('Content-Disposition', "attachment; filename= %s" % file[file.rfind('\\') + 1:])
+                part.add_header('Content-Disposition', f"attachment; filename={file.get('title')}")
                 message.attach(part)
 
             session = smtplib.SMTP('smtp.gmail.com', 587)
