@@ -36,7 +36,7 @@ def create_report_file(report_date, **kwargs):
 
         task_instance.xcom_push(
             key='result',
-            value=True
+            value=False
         )
         task_instance.xcom_push(
             key='report_date',
@@ -77,15 +77,17 @@ def create_report_file(report_date, **kwargs):
 
 
 def send_email_internal(report_date, result, list_file):
-    if result is False:
-        Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
-    elif list_file is None:
-        Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
+    if result is False or list_file is None:
+        Email.send_mail(
+            receiver=INTERNAL_EMAIL,
+            subject=f"[VNA Report Daily] Lỗi ngày {report_date}",
+            content=f"Có lỗi không mong muốn xảy ra khi sinh báo cáo ngày {report_date}. Liên hệ nammk để xử lý!"
+        )
     else:
         Email.send_mail_with_attachment(
             receiver=[INTERNAL_EMAIL],
-            subject="VNA Report Daily",
-            content=f"File báo cáo gửi VNA ngày {report_date}",
+            subject=f"[VNA Report Daily] Báo cáo ngày {report_date}",
+            content=f"Đã tạo, lưu trữ và gửi cho VNA các file báo cáo ngày {report_date}",
             attachments=json.loads(list_file)
         )
 
