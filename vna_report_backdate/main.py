@@ -51,11 +51,11 @@ def create_report_file(report_date, **kwargs):
                 },
                 {
                     "title": code_usage_filename,
-                    "path": f"{code_usage_filename}/{code_usage_filename}"
+                    "path": f"{daily_report_path}/{code_usage_filename}"
                 },
                 {
-                    "title": order_list_filename,
-                    "path": f"{cancelled_order_filename}/{cancelled_order_filename}"
+                    "title": cancelled_order_filename,
+                    "path": f"{daily_report_path}/{cancelled_order_filename}"
                 },
             ])
         )
