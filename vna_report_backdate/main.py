@@ -76,18 +76,17 @@ def create_report_file(report_date, **kwargs):
 
 
 def send_email_internal(report_date, result, list_file):
-    print(list_file)
-    # if result is False:
-    #     Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
-    # elif list_file is False:
-    #     Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
-    # else:
-    #     Email.send_mail_with_attachment(
-    #         receiver=[INTERNAL_EMAIL],
-    #         subject="VNA Report Daily",
-    #         content=f"File báo cáo gửi VNA ngày {report_date}",
-    #         attachments=list_file
-    #     )
+    if result is False:
+        Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
+    elif list_file is False:
+        Email.send_mail(INTERNAL_EMAIL, "Lỗi", "Có lỗi xảy ra")
+    else:
+        Email.send_mail_with_attachment(
+            receiver=[INTERNAL_EMAIL],
+            subject="VNA Report Daily",
+            content=f"File báo cáo gửi VNA ngày {report_date}",
+            attachments=list_file
+        )
 
 
 def upload_to_vna_sftp(result, list_file):

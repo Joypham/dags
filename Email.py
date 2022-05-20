@@ -38,6 +38,7 @@ class Email:
             message.attach(MIMEText(content, 'html'))
 
             for file in attachments:
+                print(file)
                 attachment = open(file.get("path"), "rb")
                 part = MIMEBase('application', 'octet-stream')
                 part.set_payload(attachment.read())
