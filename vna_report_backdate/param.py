@@ -1,3 +1,9 @@
+VNA_HOST = [
+    "183.90.160.22",
+    "183.90.160.64"
+]
+VNA_FOLDER_PATH = "/urbox_data/"
+
 ORDER_LIST_QUERY = """
     SELECT
         oddt.id AS order_detail_id,

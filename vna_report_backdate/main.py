@@ -15,22 +15,21 @@ redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
 def main(report_date):
     try:
-        pass
-        # report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
-        # report_date = report_date_object.strftime('%Y-%m-%d')
-        # report_date_filename = report_date_object.strftime('%d%m%Y')
-        # order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
-        # code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
-        # cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
-        #
-        # daily_report_path = f"{STORAGE_DIR}/vna_report/{report_date}"
-        #
-        # if not os.path.exists(daily_report_path):
-        #     os.mkdir(daily_report_path)
-        #
-        # generate_excel(daily_report_path, order_list_filename, ORDER_LIST_QUERY.format(report_date=report_date))
-        # generate_excel(daily_report_path, code_usage_filename, CODE_USAGE_QUERY.format(report_date=report_date))
-        # generate_excel(daily_report_path, cancelled_order_filename, CANCELLED_ORDER_QUERY.format(report_date=report_date))
+        report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
+        report_date = report_date_object.strftime('%Y-%m-%d')
+        report_date_filename = report_date_object.strftime('%d%m%Y')
+        order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
+        code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
+        cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
+
+        daily_report_path = f"{STORAGE_DIR}/vna_report/{report_date}"
+
+        if not os.path.exists(daily_report_path):
+            os.mkdir(daily_report_path)
+
+        generate_excel(daily_report_path, order_list_filename, ORDER_LIST_QUERY.format(report_date=report_date))
+        generate_excel(daily_report_path, code_usage_filename, CODE_USAGE_QUERY.format(report_date=report_date))
+        generate_excel(daily_report_path, cancelled_order_filename, CANCELLED_ORDER_QUERY.format(report_date=report_date))
 
         # Email.send_mail_with_attachment(
         #     receiver=["hanh.ph@urbox.vn"],
@@ -52,13 +51,13 @@ def main(report_date):
         #     ]
         # )
 
-        # s = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
-        # remote_path = "/urbox_data/"
-        #
-        # file = f"VNA_Evoucher_Orderlist_Cancel/VNA_Evoucher_Orderlist_Cancel_{report_date}{ext}
-        # with s.open(remote_path + file, "w") as f:
-        #     f.write(order_list_cancel.to_csv(index=False))
-        # s.close()
+        for host in VNA_HOST:
+            server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher')
+            with server.cd(VNA_FOLDER_PATH):  # chdir to public
+                server.put(f"{daily_report_path}/{order_list_filename}")
+                server.put(f"{daily_report_path}/{code_usage_filename}")
+                server.put(f"{daily_report_path}/{cancelled_order_filename}")
+            server.close()
     except Exception as e:
         print(e)
 
