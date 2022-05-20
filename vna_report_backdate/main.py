@@ -39,9 +39,9 @@ def main(report_date):
         generate_excel(daily_report_path, cancelled_order_filename, CANCELLED_ORDER_QUERY.format(report_date=report_date))
 
         Email.send_mail_with_attachment(
-            receiver=["nam.mk@urbox.vn"],
-            subject="test subject",
-            content="test_content",
+            receiver=["hanh.ph@urbox.vn"],
+            subject="VNA Report Daily",
+            content=f"File báo cáo gửi VNA ngày {report_date}",
             attachments=[
                 {
                     "title": order_list_filename,
