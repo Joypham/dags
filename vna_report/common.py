@@ -1,10 +1,9 @@
-import os
 from datetime import datetime, timedelta
 
 from Config import *
 from Email import Email
 from Utility import Utility
-from vna_report_backdate.param import *
+from vna_report.param import *
 
 import os
 import pandas
@@ -14,13 +13,12 @@ import psycopg2
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
 
-def create_report_file(report_date, **kwargs):
+def create_report_file(report_date_object, **kwargs):
     task_instance = kwargs['task_instance']
+    report_date = report_date_object.strftime('%Y-%m-%d')
+    report_date_filename = report_date_object.strftime('%d%m%Y')
 
     try:
-        report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
-        report_date = report_date_object.strftime('%Y-%m-%d')
-        report_date_filename = report_date_object.strftime('%d%m%Y')
         order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
         code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
         cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
@@ -93,15 +91,16 @@ def send_email_internal(result, report_date, list_file):
 
 
 def upload_to_vna_sftp(result, list_file):
-    if result is True and list_file is not None:
-        cnopts = sftp.CnOpts()
-        cnopts.hostkeys = None
-        for host in VNA_HOST:
-            server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
-            with server.cd(VNA_FOLDER_PATH):  # chdir to public
-                for file in list_file:
-                    server.put(file.get("path"))
-            server.close()
+    print("upload vna")
+    # if result is True and list_file is not None:
+    #     cnopts = sftp.CnOpts()
+    #     cnopts.hostkeys = None
+    #     for host in VNA_HOST:
+    #         server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
+    #         with server.cd(VNA_FOLDER_PATH):  # chdir to public
+    #             for file in list_file:
+    #                 server.put(file.get("path"))
+    #         server.close()
 
 
 def end_dag(report_date):
