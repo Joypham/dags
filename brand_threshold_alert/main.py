@@ -132,7 +132,7 @@ def get_revenue_by_brand_id(brand_id):
             AND gc.used > 0
             AND gc.used IS NOT NULL
             AND cd.brand_id = {brand_id}
-        GROUP BY brand.title
+        GROUP BY b.id
     """)
     result = redshift_cursor.fetchone()
     print(result)
