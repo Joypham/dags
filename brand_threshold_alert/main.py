@@ -4,20 +4,18 @@
 from Config import *
 
 import gspread
-import pandas
+
+google_cloud = gspread.service_account(filename=GOOGLE_PRIVATE_KEY)
+google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
+
 
 def main():
-    google_cloud = gspread.service_account(filename=GOOGLE_PRIVATE_KEY)
-    google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
-    config_sheet = google_spread.worksheet('config')
-    config_data = config_sheet.get_all_records()
-    print("Record")
-    print(config_data)
-    print("DataFrame")
-    print(pandas.DataFrame.from_dict(config_data))
-    # client_data =
-    pass
-#     brand_list = get_brand_list_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET, CONFIG_SHEET)
+    list_brand = get_brand_config()
+    get_payment()
+    for brand in list_brand:
+        print(f"Kiểm tra dữ liệu brand: {brand.get('brand_id')}")
+
+
 #     for brand_id in brand_list:
 #         print('BRAND ID:', brand_id)
 #         paid_amount, lastest_payment_date = get_payment_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS,
@@ -68,7 +66,28 @@ def main():
 #                     print('KHÔNG VƯỢT MỐC')
 #                     pass
 #
-#
+
+
+def get_brand_config():
+    config_sheet = google_spread.worksheet("config")
+    return config_sheet.get_all_records()
+
+
+def get_payment():
+    payment_sheet = google_spread.worksheet("payment")
+    payment_data = payment_sheet.get_all_records()
+    print(payment_data)
+    # list_payment = {}
+    # for payment in payment_data:
+    #     key = f"brand_{payment.get('brand_id')}"
+    #     if key not in list_payment:
+    #         list_payment.update({
+    #             key: {}
+    #         })
+
+
+
+
 # def get_brand_list_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname, real='y'):
 #     '''
 #     real = 'y' => real, 'n' => test
