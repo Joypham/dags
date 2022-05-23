@@ -20,6 +20,6 @@ class Utility:
     @staticmethod
     def date_string_to_timestamp(string):
         try:
-            return time.mktime(datetime.strptime(string, "%Y-%m-%d").timetuple())
+            return int(time.mktime(datetime.strptime(string, "%Y-%m-%d").timetuple()))
         except ValueError:
             return False
