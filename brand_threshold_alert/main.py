@@ -12,7 +12,8 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 def main():
     list_brand = get_brand_config()
-    get_payment()
+    list_payment = get_payment()
+    print(list_payment)
     # for brand in list_brand:
     #     print(f"Kiểm tra dữ liệu brand: {brand.get('brand_id')}")
 
