@@ -2,6 +2,7 @@
 # from brand_threshold_alert.param import *
 #
 from Config import *
+from Utility import Utility
 
 import gspread
 
@@ -11,7 +12,6 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 def main():
     list_brand = get_brand_config()
-    print(list_brand)
     get_payment()
     # for brand in list_brand:
     #     print(f"Kiểm tra dữ liệu brand: {brand.get('brand_id')}")
@@ -80,7 +80,7 @@ def get_brand_config():
         if key not in list_brand:
             list_brand.update({key: {}})
         list_brand.get(key).update({
-            f"level_{config.get('threshold_level')}": config.get('value')
+            f"level_{config.get('threshold_level')}": Utility.to_int(config.get('value'))
         })
     return list_brand
 
@@ -88,15 +88,27 @@ def get_brand_config():
 def get_payment():
     payment_sheet = google_spread.worksheet("payment")
     payment_data = payment_sheet.get_all_records()
-    print(payment_data)
-    # list_payment = {}
-    # for payment in payment_data:
-    #     key = f"brand_{payment.get('brand_id')}"
-    #     if key not in list_payment:
-    #         list_payment.update({
-    #             key: {}
-    #         })
-
+    list_payment = {}
+    for payment in payment_data:
+        key = f"brand_{payment.get('brand_id')}"
+        if key not in list_payment:
+            list_payment.update({
+                key: {
+                    "payment_amount": 0,
+                    "latest_payment_date": 0
+                }
+            })
+        latest_payment_time = Utility.date_string_to_timestamp(payment.get("payment_date"))
+        if latest_payment_time is False:
+            continue
+        if list_payment.get(key).get("latest_payment_date") > latest_payment_time:
+            latest_payment_time = list_payment.get(key).get("latest_payment_date")
+        payment_amount = list_payment.get(key).get("payment_amount") + payment.get("payment_amount")
+        list_payment.get(key).update({
+            "payment_amount": payment_amount,
+            "latest_payment_date": latest_payment_time
+        })
+    return list_payment
 
 
 
