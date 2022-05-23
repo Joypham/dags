@@ -9,7 +9,7 @@ import pandas
 def main():
     google_cloud = gspread.service_account(filename=GOOGLE_PRIVATE_KEY)
     google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
-    config_sheet = google_spread.open('config')
+    config_sheet = google_spread.worksheet('config')
     config_data = config_sheet.get_all_records()
     print("Record")
     print(config_data)
