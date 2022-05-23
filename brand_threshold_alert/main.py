@@ -183,7 +183,7 @@ def get_log():
 
 def create_log(brand_id, threshold_level):
     log_sheet = google_spread.worksheet("send_log")
-    log_sheet.append_row({brand_id, threshold_level, str(datetime.today())})
+    log_sheet.append_row([brand_id, threshold_level, str(datetime.today())])
 
 
 def get_revenue_by_brand_id(brand_id):
