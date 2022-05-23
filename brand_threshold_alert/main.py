@@ -4,14 +4,18 @@
 from Config import *
 
 import gspread
-
-
-# import pandas as pd
+import pandas
 
 def main():
     google_cloud = gspread.service_account(filename=GOOGLE_PRIVATE_KEY)
     google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
-    print(google_spread)
+    config_sheet = google_spread.open('config')
+    config_data = config_sheet.get_all_records()
+    print("Record")
+    print(config_data)
+    print("DataFrame")
+    print(pandas.DataFrame.from_dict(config_data))
+    # client_data =
     pass
 #     brand_list = get_brand_list_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET, CONFIG_SHEET)
 #     for brand_id in brand_list:
