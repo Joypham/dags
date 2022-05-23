@@ -11,9 +11,10 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 def main():
     list_brand = get_brand_config()
+    print(list_brand)
     get_payment()
-    for brand in list_brand:
-        print(f"Kiểm tra dữ liệu brand: {brand.get('brand_id')}")
+    # for brand in list_brand:
+    #     print(f"Kiểm tra dữ liệu brand: {brand.get('brand_id')}")
 
 
 #     for brand_id in brand_list:
@@ -70,7 +71,18 @@ def main():
 
 def get_brand_config():
     config_sheet = google_spread.worksheet("config")
-    return config_sheet.get_all_records()
+    config_data = config_sheet.get_all_records()
+    list_brand = {}
+    for config in config_data:
+        if config.get("status") != 1:
+            continue
+        key = f"{config.get('brand_id')}"
+        if key not in list_brand:
+            list_brand.update({key: {}})
+        list_brand.get(key).update({
+            f"level_{config.get('threshold_level')}": config.get('value')
+        })
+    return list_brand
 
 
 def get_payment():
