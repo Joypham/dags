@@ -1,6 +1,7 @@
 # from oauth2client.service_account import ServiceAccountCredentials
 # from brand_threshold_alert.param import *
 #
+from datetime import datetime
 from Config import *
 from Utility import Utility
 
@@ -15,41 +16,62 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 
 def main():
+    insert_log(123, 9)
+    return
+    current = Utility.current_timestamp()
     list_brand = get_brand_config()
     list_payment = get_payment()
     list_unrecorded_revenue = get_unrecorded_revenue()
+    list_log = get_log()
     print(list_brand)
     print(list_payment)
     print(list_unrecorded_revenue)
-    # for id, brand in list_brand.items():
-    #     print(f"Kiểm tra dữ liệu brand: {id}")
-    #     revenue = get_revenue_by_brand_id(id)
+    for id, threshold in list_brand.items():
+        print(f"Kiểm tra dữ liệu brand: {id}")
+        revenue = get_revenue_by_brand_id(id)
+        unrecorded_revenue = list_unrecorded_revenue.get(f"{id}") or 0
+        payment_detail = list_payment.get(f"{id}") or None
+        if payment_detail is not None:
+            paid_amount = payment_detail.get("payment_amount")
+            latest_payment_date = payment_detail.get("latest_payment_date")
+        else:
+            paid_amount = 0
+            latest_payment_date = 0
 
+        log = list_log.get(f"{id}") or None
+        if log is not None:
+            latest_level = log.get("level")
+            latest_log = log.get("latest_log")
+        else:
+            latest_level = 0
+            latest_log = 0
 
-#     for brand_id in brand_list:
-#         print('BRAND ID:', brand_id)
-#         paid_amount, lastest_payment_date = get_payment_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS,
-#                                                                      SPREADSHEET, PAYMENT_INFO_SHEET, brand_id)
-#         lastest_time, lastest_level = get_log_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET,
-#                                                            SEND_LOG, brand_id)
-#         with urbox_engine.connect() as conn:
-#             try:
-#                 result = conn.execute(sql_string.format(brand_id=brand_id)).first()
-#                 brand_name = result[0]
-#                 total_recorded_revenue = result[1]
-#             except (TypeError):
-#                 brand_name = ''
-#                 total_recorded_revenue = 0
-#         print('BRAND NAME:', brand_name)
-#         threshold_dict = get_threshold_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET,
-#                                                     CONFIG_SHEET, brand_id)
-#         print('THRESHOLD_DICT:', threshold_dict)
-#         total_unrecorded = get_unrecoded_code_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET,
-#                                                            UNRECODED_CODE, brand_id)
-#         print(f'TỔNG REVENUE TRÊN HỆ THỐNG LÀ {total_recorded_revenue:,}')
-#         print(f'TỔNG REVENUE KHÔNG TRÊN HỆ THỐNG LÀ {total_unrecorded:,}')
-#         print(f'TỔNG ĐÃ TRẢ LÀ {paid_amount:,}')
-#         remaining_revenue = (total_recorded_revenue + total_unrecorded) - paid_amount
+        remaining_revenue = revenue + unrecorded_revenue - paid_amount
+        print(f"Thông tin brand: {revenue.get('title')}")
+        print(f"Tổng doanh thu đã ghi nhận trên hệ thống là {revenue.get('revenue')}")
+        print(f"Tổng doanh thu chưa ghi nhận trên hệ thống là {unrecorded_revenue}")
+        print(f"Tổng số tiền đã thanh toán là {paid_amount}")
+        print(f"Số tiền chưa thanh toán là {remaining_revenue}")
+        if remaining_revenue <= 0:
+            print("Đã thanh toán tất cả")
+            continue
+
+        warning_level = check_threshold(threshold, remaining_revenue)
+        if warning_level is False:
+            print("Số tiền chưa thanh toán không chạm mốc cảnh báo.")
+            continue
+
+        diff_latest_log_hours = (current - latest_log) // 3600
+        if latest_level == warning_level and diff_latest_log_hours < 24:
+            print("Brand này đã được cảnh báo trong 24h vừa qua")
+            continue
+        print(f"""
+            Brand {revenue.get('title')} đã chạm tới mốc {warning_level} 
+            với doanh thu chưa được thanh toán là {remaining_revenue}
+        """)
+        # Gửi mail
+        # Lưu log
+        insert_log(id, warning_level)
 #         if remaining_revenue < 0:
 #             print(f'ĐÃ TRẢ TRƯỚC {abs(remaining_revenue):,} CHO {brand_name}')
 #             pass
@@ -77,6 +99,7 @@ def main():
 #                     pass
 #
 
+
 def get_brand_config():
     config_sheet = google_spread.worksheet("config")
     config_data = config_sheet.get_all_records()
@@ -88,7 +111,7 @@ def get_brand_config():
         if key not in list_brand:
             list_brand.update({key: {}})
         list_brand.get(key).update({
-            f"level_{config.get('threshold_level')}": Utility.to_int(config.get('value'))
+            f"{config.get('threshold_level')}": Utility.to_int(config.get('value'))
         })
     return list_brand
 
@@ -135,6 +158,38 @@ def get_unrecorded_revenue():
     return list_unrecorded_revenue
 
 
+def get_log():
+    log_sheet = google_spread.worksheet("send_log")
+    log_data = log_sheet.get_all_records()
+    list_log = {}
+    for log in log_data:
+        key = f"{log.get('brand_id')}"
+        if key not in list_log:
+            list_log.update({
+                key: {
+                    "level": 0,
+                    "latest_log": 0
+                }
+            })
+        latest_log = Utility.date_string_to_timestamp(log.get("log_time"))
+        if list_log.get(key).get("latest_log") >= latest_log:
+            continue
+        list_log.get(key).update({
+            "level": log.get("threshold_level"),
+            "latest_log": latest_log
+        })
+    return list_log
+
+
+def insert_log(brand_id, threshold_level):
+    log_sheet = google_spread.worksheet("send_log")
+    log_sheet.append_row({
+        "brand_id": brand_id,
+        "threshold_level": threshold_level,
+        "log_time": str(datetime.today())
+    })
+
+
 def get_revenue_by_brand_id(brand_id):
     redshift_cursor = redshift_connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     redshift_cursor.execute(f"""
@@ -157,6 +212,13 @@ def get_revenue_by_brand_id(brand_id):
     result = redshift_cursor.fetchone()
     redshift_cursor.close()
     return result
+
+
+def check_threshold(threshold, revenue):
+    for level, value in threshold.items():
+        if revenue >= value:
+            return level
+    return False
 # def get_brand_list_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname, real='y'):
 #     '''
 #     real = 'y' => real, 'n' => test

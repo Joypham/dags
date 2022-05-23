@@ -18,6 +18,10 @@ class Utility:
             return 0
 
     @staticmethod
+    def current_timestamp():
+        return int(time.time())
+
+    @staticmethod
     def date_string_to_timestamp(string):
         try:
             return int(time.mktime(datetime.strptime(string, "%Y-%m-%d").timetuple()))
