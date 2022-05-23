@@ -43,4 +43,5 @@ TELEGRAM_CHAT_IDS = [
 ]
 
 # Ect
+GOOGLE_PRIVATE_KEY = "/opt/airflow/dags/Credential/airflow-351104-361517c48b1c.json"
 STORAGE_DIR = "/opt/airflow/storages"
