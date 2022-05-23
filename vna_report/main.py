@@ -131,3 +131,4 @@ def generate_excel(path, filename, query):
     with open(f"{path}/{filename}", "wb") as f:
         with pandas.ExcelWriter(f, engine='xlsxwriter') as writer:
             data.to_excel(writer, index=False)
+    redshift_cursor.close()

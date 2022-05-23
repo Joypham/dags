@@ -17,11 +17,13 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 def main():
     list_brand = get_brand_config()
     list_payment = get_payment()
+    list_unrecorded_revenue = get_unrecorded_revenue()
     print(list_brand)
     print(list_payment)
-    for id, brand in list_brand.items():
-        print(f"Kiểm tra dữ liệu brand: {id}")
-        get_revenue_by_brand_id(id)
+    print(list_unrecorded_revenue)
+    # for id, brand in list_brand.items():
+    #     print(f"Kiểm tra dữ liệu brand: {id}")
+    #     revenue = get_revenue_by_brand_id(id)
 
 
 #     for brand_id in brand_list:
@@ -117,6 +119,22 @@ def get_payment():
     return list_payment
 
 
+def get_unrecorded_revenue():
+    unrecorded_code_sheet = google_spread.worksheet("unrecorded_code")
+    unrecorded_code_data = unrecorded_code_sheet.get_all_records()
+    list_unrecorded_revenue = {}
+    for code in unrecorded_code_data:
+        key = f"{code.get('brand_id')}"
+        if key not in list_unrecorded_revenue:
+            list_unrecorded_revenue.update({
+                key: 0
+            })
+        list_unrecorded_revenue.update({
+            key: list_unrecorded_revenue.get(key) + code.get("value")
+        })
+    return list_unrecorded_revenue
+
+
 def get_revenue_by_brand_id(brand_id):
     redshift_cursor = redshift_connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     redshift_cursor.execute(f"""
@@ -137,7 +155,8 @@ def get_revenue_by_brand_id(brand_id):
         GROUP BY b.title
     """)
     result = redshift_cursor.fetchone()
-    print(result)
+    redshift_cursor.close()
+    return result
 # def get_brand_list_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname, real='y'):
 #     '''
 #     real = 'y' => real, 'n' => test
