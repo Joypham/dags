@@ -118,7 +118,7 @@ def get_payment():
 def get_revenue_by_brand_id(brand_id):
     redshift_cursor = redshift_connection.cursor()
     redshift_cursor.execute(f"""
-        SELECT b.title, SUM(cd.money) AS revenue,
+        SELECT b.title, SUM(cd.money) AS revenue
         FROM urbox.cart_detail cd
             LEFT JOIN urbox.cart c ON cd.cart_id = c.id
             LEFT JOIN (
