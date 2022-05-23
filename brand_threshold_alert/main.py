@@ -6,6 +6,7 @@ from Utility import Utility
 
 import gspread
 import psycopg2
+import psycopg2.extras
 
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
@@ -21,6 +22,7 @@ def main():
     for id, brand in list_brand.items():
         print(f"Kiểm tra dữ liệu brand: {id}")
         get_revenue_by_brand_id(id)
+
 
 #     for brand_id in brand_list:
 #         print('BRAND ID:', brand_id)
@@ -116,7 +118,7 @@ def get_payment():
 
 
 def get_revenue_by_brand_id(brand_id):
-    redshift_cursor = redshift_connection.cursor()
+    redshift_cursor = redshift_connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     redshift_cursor.execute(f"""
         SELECT b.title, SUM(cd.money) AS revenue
         FROM urbox.cart_detail cd
