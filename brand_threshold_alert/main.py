@@ -5,6 +5,9 @@ from Config import *
 from Utility import Utility
 
 import gspread
+import psycopg2
+
+redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 
 google_cloud = gspread.service_account(filename=GOOGLE_PRIVATE_KEY)
 google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
@@ -17,7 +20,7 @@ def main():
     print(list_payment)
     for id, brand in list_brand.items():
         print(f"Kiểm tra dữ liệu brand: {id}")
-
+        get_revenue_by_brand_id(id)
 
 #     for brand_id in brand_list:
 #         print('BRAND ID:', brand_id)
@@ -70,7 +73,6 @@ def main():
 #                     pass
 #
 
-
 def get_brand_config():
     config_sheet = google_spread.worksheet("config")
     config_data = config_sheet.get_all_records()
@@ -92,7 +94,7 @@ def get_payment():
     payment_data = payment_sheet.get_all_records()
     list_payment = {}
     for payment in payment_data:
-        key = f"brand_{payment.get('brand_id')}"
+        key = f"{payment.get('brand_id')}"
         if key not in list_payment:
             list_payment.update({
                 key: {
@@ -113,7 +115,27 @@ def get_payment():
     return list_payment
 
 
-
+def get_revenue_by_brand_id(brand_id):
+    redshift_cursor = redshift_connection.cursor()
+    redshift_cursor.execute(f"""
+        SELECT b.title, SUM(cd.money) AS revenue,
+        FROM urbox.cart_detail cd
+            LEFT JOIN urbox.cart c ON cd.cart_id = c.id
+            LEFT JOIN (
+                SELECT *, row_number() over(PARTITION BY cart_detail_id ORDER BY id DESC) rn_cd_id FROM urbox.gift_code
+            ) gc ON gc.cart_detail_id = cd.id AND gc.rn_cd_id = 1 AND gc.status = 1
+            LEFT JOIN urbox.brand b ON b.id = cd.brand_id
+        WHERE
+            cd.status = 2
+            AND cd.pay_status = 2
+            AND c.delivery <> 4
+            AND gc.used > 0
+            AND gc.used IS NOT NULL
+            AND cd.brand_id = {brand_id}
+        GROUP BY brand.title
+    """)
+    result = redshift_cursor.fetchone()
+    print(result)
 # def get_brand_list_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname, real='y'):
 #     '''
 #     real = 'y' => real, 'n' => test
