@@ -16,7 +16,7 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 
 def main():
-    insert_log(123, 9)
+    create_log(123, 9)
     return
     current = Utility.current_timestamp()
     list_brand = get_brand_config()
@@ -181,13 +181,9 @@ def get_log():
     return list_log
 
 
-def insert_log(brand_id, threshold_level):
+def create_log(brand_id, threshold_level):
     log_sheet = google_spread.worksheet("send_log")
-    log_sheet.append_row({
-        "brand_id": brand_id,
-        "threshold_level": threshold_level,
-        "log_time": str(datetime.today())
-    })
+    log_sheet.append_row({brand_id, threshold_level, str(datetime.today())})
 
 
 def get_revenue_by_brand_id(brand_id):
