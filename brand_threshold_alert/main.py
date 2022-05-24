@@ -53,6 +53,10 @@ def main():
             continue
 
         diff_latest_log_hours = (current - latest_log) // 3600
+        print(latest_level)
+        print(type(latest_level))
+        print(type(warning_level))
+        print(diff_latest_log_hours)
         if latest_level == warning_level and diff_latest_log_hours < 24:
             print("Brand này đã được cảnh báo trong 24h vừa qua")
             continue
