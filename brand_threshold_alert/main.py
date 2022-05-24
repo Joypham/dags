@@ -166,12 +166,13 @@ def get_list_mail():
         if key not in list_mail:
             list_mail.update({
                 key: {
-                    "1": [],
-                    "2": []
+                    "low": [],
+                    "high": []
                 }
             })
-        mail_type = f"{mail.get('type')}"
-        list_mail.get(key).get(mail_type).append(mail.get("mail"))
+        list_mail.get(key).get("high").append(mail.get("mail"))
+        if mail.get('type') == 1:
+            list_mail.get(key).get("low").append(mail.get("mail"))
     return list_mail
 
 
