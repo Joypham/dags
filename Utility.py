@@ -25,7 +25,7 @@ class Utility:
     @staticmethod
     def date_string_to_timestamp(string):
         try:
-            print(parse(string).time)
+            print(time.mktime(parse(string).time()))
             # return int(time.mktime(datetime.strptime(string, "%Y-%m-%d").timetuple()))
         except ValueError:
             return False
