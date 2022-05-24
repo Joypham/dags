@@ -17,67 +17,65 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 
 def main():
-    # current = Utility.current_timestamp()
-    # list_brand = get_brand_config()
-    # list_payment = get_payment()
-    # list_unrecorded_revenue = get_unrecorded_revenue()
-    # list_mail = get_list_mail()
+    current = Utility.current_timestamp()
+    list_brand = get_brand_config()
+    list_payment = get_payment()
+    list_unrecorded_revenue = get_unrecorded_revenue()
+    list_mail = get_list_mail()
     list_log = get_log()
-    print(list_log)
-    return
-    # for id, threshold in list_brand.items():
-    #     print(f"Kiểm tra dữ liệu brand: {id}")
-    #     revenue = get_revenue_by_brand_id(id)
-    #     unrecorded_revenue = list_unrecorded_revenue.get(f"{id}") or 0
-    #     paid_amount = list_payment.get(f"{id}") or None
-    #
-    #     log = list_log.get(f"{id}") or None
-    #     if log is not None:
-    #         latest_level = log.get("level")
-    #         latest_log = log.get("latest_log")
-    #     else:
-    #         latest_level = 0
-    #         latest_log = 0
-    #
-    #     remaining_revenue = revenue.get("revenue") + unrecorded_revenue - paid_amount
-    #     print(f"Thông tin brand: {revenue.get('title')}")
-    #     print(f"Tổng doanh thu đã ghi nhận trên hệ thống là {revenue.get('revenue'):,}")
-    #     print(f"Tổng doanh thu chưa ghi nhận trên hệ thống là {unrecorded_revenue:,}")
-    #     print(f"Tổng số tiền đã thanh toán là {paid_amount:,}")
-    #     print(f"Số tiền chưa thanh toán là {remaining_revenue:,}")
-    #     if remaining_revenue <= 0:
-    #         print("Đã thanh toán tất cả")
-    #         continue
-    #
-    #     warning_level = check_threshold(threshold, remaining_revenue)
-    #     if warning_level is False:
-    #         print("Số tiền chưa thanh toán không chạm mốc cảnh báo.")
-    #         continue
-    #
-    #     diff_latest_log_hours = (current - latest_log) // 3600
-    #     print(list_log)
-    #     print(latest_level)
-    #     print(type(latest_level))
-    #     print(warning_level)
-    #     print(type(warning_level))
-    #     print(diff_latest_log_hours)
-    #     if latest_level == warning_level and diff_latest_log_hours < 24:
-    #         print("Brand này đã được cảnh báo trong 24h vừa qua")
-    #         continue
-    #     print(f"""Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
-    #     với doanh thu chưa được thanh toán là {remaining_revenue:,}""")
-    #     if not list_mail.get(f"{id}"):
-    #         continue
-    #     if warning_level == 1:
-    #         list_receiver = list_mail.get(f"{id}").get("low")
-    #     else:
-    #         list_receiver = list_mail.get(f"{id}").get("high")
-    #     # Email.send_mail(
-    #     #     receiver=list_receiver,
-    #     #     subject=SUBJECT.format(brand_name=revenue.get('title')),
-    #     #     content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
-    #     # )
-    #     create_log(id, warning_level)
+    for id, threshold in list_brand.items():
+        print(f"Kiểm tra dữ liệu brand: {id}")
+        revenue = get_revenue_by_brand_id(id)
+        unrecorded_revenue = list_unrecorded_revenue.get(f"{id}") or 0
+        paid_amount = list_payment.get(f"{id}") or None
+
+        log = list_log.get(f"{id}") or None
+        if log is not None:
+            latest_level = log.get("level")
+            latest_log = log.get("latest_log")
+        else:
+            latest_level = 0
+            latest_log = 0
+
+        remaining_revenue = revenue.get("revenue") + unrecorded_revenue - paid_amount
+        print(f"Thông tin brand: {revenue.get('title')}")
+        print(f"Tổng doanh thu đã ghi nhận trên hệ thống là {revenue.get('revenue'):,}")
+        print(f"Tổng doanh thu chưa ghi nhận trên hệ thống là {unrecorded_revenue:,}")
+        print(f"Tổng số tiền đã thanh toán là {paid_amount:,}")
+        print(f"Số tiền chưa thanh toán là {remaining_revenue:,}")
+        if remaining_revenue <= 0:
+            print("Đã thanh toán tất cả")
+            continue
+
+        warning_level = check_threshold(threshold, remaining_revenue)
+        if warning_level is False:
+            print("Số tiền chưa thanh toán không chạm mốc cảnh báo.")
+            continue
+
+        diff_latest_log_hours = (current - latest_log) // 3600
+        print(list_log)
+        print(latest_level)
+        print(type(latest_level))
+        print(warning_level)
+        print(type(warning_level))
+        print(diff_latest_log_hours)
+        if latest_level == warning_level and diff_latest_log_hours < 24:
+            print("Brand này đã được cảnh báo trong 24h vừa qua")
+            continue
+        print(f"""Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
+        với doanh thu chưa được thanh toán là {remaining_revenue:,}""")
+        if not list_mail.get(f"{id}"):
+            continue
+        if warning_level == 1:
+            list_receiver = list_mail.get(f"{id}").get("low")
+        else:
+            list_receiver = list_mail.get(f"{id}").get("high")
+        # Email.send_mail(
+        #     receiver=list_receiver,
+        #     subject=SUBJECT.format(brand_name=revenue.get('title')),
+        #     content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
+        # )
+        create_log(id, warning_level)
 
 
 def get_brand_config():
@@ -156,7 +154,6 @@ def get_log():
                 }
             })
         latest_log = Utility.date_string_to_timestamp(log.get("log_time"))
-        print(latest_log)
         if latest_log is False or list_log.get(key).get("latest_log") >= latest_log:
             continue
         list_log.get(key).update({
