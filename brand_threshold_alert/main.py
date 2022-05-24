@@ -16,7 +16,8 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 
 def main():
-    create_log(123, 9)
+    list_mail = get_list_mail()
+    print(list_mail)
     return
     current = Utility.current_timestamp()
     list_brand = get_brand_config()
@@ -71,7 +72,7 @@ def main():
         """)
         # Gửi mail
         # Lưu log
-        insert_log(id, warning_level)
+        create_log(id, warning_level)
 #         if remaining_revenue < 0:
 #             print(f'ĐÃ TRẢ TRƯỚC {abs(remaining_revenue):,} CHO {brand_name}')
 #             pass
@@ -105,8 +106,6 @@ def get_brand_config():
     config_data = config_sheet.get_all_records()
     list_brand = {}
     for config in config_data:
-        if config.get("status") != 1:
-            continue
         key = f"{config.get('brand_id')}"
         if key not in list_brand:
             list_brand.update({key: {}})
@@ -156,6 +155,24 @@ def get_unrecorded_revenue():
             key: list_unrecorded_revenue.get(key) + code.get("value")
         })
     return list_unrecorded_revenue
+
+
+def get_list_mail():
+    mail_sheet = google_spread.worksheet("mail_list")
+    mail_data = mail_sheet.get_all_records()
+    list_mail = {}
+    for mail in mail_data:
+        key = f"{mail.get('brand_id')}"
+        if key not in list_mail:
+            list_mail.update({
+                key: {
+                    "1": [],
+                    "2": []
+                }
+            })
+        mail_type = f"{mail.get('type')}"
+        list_mail.get(key).get(mail_type).append(mail.get("mail"))
+    return list_mail
 
 
 def get_log():
