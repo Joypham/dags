@@ -60,6 +60,7 @@ def main():
             Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
             với doanh thu chưa được thanh toán là {remaining_revenue:,}
         """)
+        print(list_mail.get(f"{id}"))
         if warning_level == 1:
             list_receiver = list_mail.get(f"{id}").get("low")
         else:
