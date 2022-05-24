@@ -1,5 +1,5 @@
 from datetime import datetime
-from dateutil import parser
+from dateutil.parser import parse
 import telegram
 import time
 
@@ -25,7 +25,7 @@ class Utility:
     @staticmethod
     def date_string_to_timestamp(string):
         try:
-            print(parser.parse(string))
+            print(parse(string).time)
             # return int(time.mktime(datetime.strptime(string, "%Y-%m-%d").timetuple()))
         except ValueError:
             return False
