@@ -25,7 +25,7 @@ dag = DAG(
     schedule_interval=None,
     render_template_as_native_obj=True,
     description='DAG cảnh báo khi brand đạt ngưỡng doanh thu',
-    tags=["brand", "auto", "v0.9"]
+    tags=["brand", "auto", "v1.0"]
 )
 
 brand_threshold_alert = PythonOperator(

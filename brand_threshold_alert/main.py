@@ -56,11 +56,8 @@ def main():
         if latest_level == warning_level and diff_latest_log_hours < 24:
             print("Brand này đã được cảnh báo trong 24h vừa qua")
             continue
-        print(f"""
-            Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
-            với doanh thu chưa được thanh toán là {remaining_revenue:,}
-        """)
-        print(list_mail.get(f"{id}"))
+        print(f"""Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
+        với doanh thu chưa được thanh toán là {remaining_revenue:,}""")
         if not list_mail.get(f"{id}"):
             continue
         if warning_level == 1:
