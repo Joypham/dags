@@ -61,18 +61,17 @@ def main():
             với doanh thu chưa được thanh toán là {remaining_revenue:,}
         """)
         print(list_mail.get(f"{id}"))
+        if not list_mail.get(f"{id}"):
+            continue
         if warning_level == 1:
             list_receiver = list_mail.get(f"{id}").get("low")
         else:
             list_receiver = list_mail.get(f"{id}").get("high")
-        print(list_receiver)
-        print(SUBJECT.format(brand_name=revenue.get('title')))
-        print(CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue))
-        # Email.send_mail(
-        #     receiver=list_receiver,
-        #     subject=SUBJECT.format(brand_name=revenue.get('title')),
-        #     content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
-        # )
+        Email.send_mail(
+            receiver=list_receiver,
+            subject=SUBJECT.format(brand_name=revenue.get('title')),
+            content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
+        )
         create_log(id, warning_level)
 
 
