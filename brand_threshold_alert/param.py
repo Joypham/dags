@@ -1,12 +1,21 @@
-SHEET_COL_DICT = {
-    'revenue_test': ['brand_id', 'revenue'],
-    'config': ['brand_id', 'threshold_level', 'value', 'status', 'real'],
-    'brand_info_test': ['brand_id', 'brand_name'],
-    'payment': ['brand_id', 'payment_date', 'payment_amount', 'doc'],
-    'unrecorded_code': ['brand_id', 'using_time', 'gift_detail_name', 'code', 'value'],
-    'send_log': ['brand_id', 'threshold_level', 'lastest_time', 'status'],
-    'mail_list_test': ['brand_id', 'internal_mail_list', 'external_mail_list'],
+SUBJECT = "[UrBox - {brand_name}] Cảnh báo hạn mức"
+CONTENT = {
+    "1": """<b>Dear All,</b>
+        <br>
+        Doanh thu {brand_name} đã đạt {revenue} (mốc 1). 
+        Chú ý <b>theo dõi và thanh toán</b> khi đạt hạn mức tiếp theo.
+        <br>
+        Thank you.""",
+    "2": """<b>Dear All,</b>
+        <br>
+        Doanh thu {brand_name} đã đạt hạn mức {revenue} (mốc 2). 
+        Yêu cầu UrBox <b>thực hiện thanh toán đối soát</b> cho {brand_name}.
+        <br>
+        Thank you.""",
+    "3": """<b>Dear All,</b>
+        <br>
+        Doanh thu {brand_name} đã đạt {revenue} (mốc 3). 
+        {brand_name} <b>có quyền dừng chấp nhận E-voucher trong trường hợp UrBox chưa hoàn thiện thanh toán</b>.
+        <br>
+        Thank you."""
 }
-GOOGLE_FEEDS = 'https://spreadsheets.google.com/feeds'
-GOOGLE_DRIVE = 'https://www.googleapis.com/auth/drive'
-GOOGLE_SHEET_SCOPE = [GOOGLE_FEEDS, GOOGLE_DRIVE]

@@ -1,8 +1,9 @@
 # from oauth2client.service_account import ServiceAccountCredentials
-# from brand_threshold_alert.param import *
-#
+from brand_threshold_alert.param import *
+
 from datetime import datetime
 from Config import *
+from Email import Email
 from Utility import Utility
 
 import gspread
@@ -16,13 +17,11 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 
 def main():
-    list_mail = get_list_mail()
-    print(list_mail)
-    return
     current = Utility.current_timestamp()
     list_brand = get_brand_config()
     list_payment = get_payment()
     list_unrecorded_revenue = get_unrecorded_revenue()
+    list_mail = get_list_mail()
     list_log = get_log()
     print(list_brand)
     print(list_payment)
@@ -31,13 +30,7 @@ def main():
         print(f"Kiểm tra dữ liệu brand: {id}")
         revenue = get_revenue_by_brand_id(id)
         unrecorded_revenue = list_unrecorded_revenue.get(f"{id}") or 0
-        payment_detail = list_payment.get(f"{id}") or None
-        if payment_detail is not None:
-            paid_amount = payment_detail.get("payment_amount")
-            latest_payment_date = payment_detail.get("latest_payment_date")
-        else:
-            paid_amount = 0
-            latest_payment_date = 0
+        paid_amount = list_payment.get(f"{id}") or None
 
         log = list_log.get(f"{id}") or None
         if log is not None:
@@ -70,35 +63,16 @@ def main():
             Brand {revenue.get('title')} đã chạm tới mốc {warning_level} 
             với doanh thu chưa được thanh toán là {remaining_revenue}
         """)
-        # Gửi mail
-        # Lưu log
+        if warning_level == 1:
+            list_receiver = list_mail.get(f"{id}").get("low")
+        else:
+            list_receiver = list_mail.get(f"{id}").get("high")
+        Email.send_mail(
+            receiver=list_receiver,
+            subject=SUBJECT.format(brand_name=revenue.get('title')),
+            content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
+        )
         create_log(id, warning_level)
-#         if remaining_revenue < 0:
-#             print(f'ĐÃ TRẢ TRƯỚC {abs(remaining_revenue):,} CHO {brand_name}')
-#             pass
-#         else:
-#             send, threshold_level, threshold_value = revenue_compare(threshold_dict, remaining_revenue)
-#             duration = dt.datetime.now() - lastest_time.replace(tzinfo=None)
-#             hours = duration.days * 24 + duration.seconds // 3600
-#             if threshold_level == lastest_level and hours < 24:
-#                 print('CHƯA CÓ THAY ĐỔI')
-#                 pass
-#             else:
-#                 print(f'MỐC {threshold_level:,} VỚI DOANH THU CHƯA ĐƯỢC THANH TOÁN LÀ {remaining_revenue:,}')
-#                 if send == True:
-#                     subject = SUBJECT.format(brand_name=brand_name)
-#                     text = threshold_text_dict[threshold_level].format(brand_name=brand_name,
-#                                                                        threshold_value=f'{threshold_value:,}')
-#                     send_notification_revenue_alert(brand_id, threshold_level, subject, text, send)
-#                     max_index = get_index_from_ggsheet(GOOGLE_SHEET_SCOPE, PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET,
-#                                                        SEND_LOG)
-#                     df = pd.DataFrame({'brand_id': [brand_id], 'threshold_level': [threshold_level],
-#                                        'lastest_time': [str(dt.datetime.now(tz=timezone('Asia/Jakarta')))], 'status': [1]})
-#                     insert_data_to_gg_sheet2(PO_APP_GOOGLE_SHEET_CREDENTIALS, SPREADSHEET, SEND_LOG, df, max_index)
-#                 else:
-#                     print('KHÔNG VƯỢT MỐC')
-#                     pass
-#
 
 
 def get_brand_config():
@@ -122,22 +96,9 @@ def get_payment():
     for payment in payment_data:
         key = f"{payment.get('brand_id')}"
         if key not in list_payment:
-            list_payment.update({
-                key: {
-                    "payment_amount": 0,
-                    "latest_payment_date": 0
-                }
-            })
-        latest_payment_time = Utility.date_string_to_timestamp(payment.get("payment_date"))
-        if latest_payment_time is False:
-            continue
-        if list_payment.get(key).get("latest_payment_date") > latest_payment_time:
-            latest_payment_time = list_payment.get(key).get("latest_payment_date")
-        payment_amount = list_payment.get(key).get("payment_amount") + payment.get("payment_amount")
-        list_payment.get(key).update({
-            "payment_amount": payment_amount,
-            "latest_payment_date": latest_payment_time
-        })
+            list_payment.update({key: 0})
+        payment_amount = list_payment.get(key) + payment.get("payment_amount")
+        list_payment.update({key: payment_amount})
     return list_payment
 
 
