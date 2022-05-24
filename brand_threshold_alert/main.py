@@ -48,7 +48,7 @@ def main():
             continue
 
         warning_level = check_threshold(threshold, remaining_revenue)
-        if warning_level is False:
+        if warning_level == 0:
             print("Số tiền chưa thanh toán không chạm mốc cảnh báo.")
             continue
 
@@ -56,8 +56,8 @@ def main():
         if latest_level == warning_level and diff_latest_log_hours < 24:
             print("Brand này đã được cảnh báo trong 24h vừa qua")
             continue
-        print(f"""Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
-        với doanh thu chưa được thanh toán là {remaining_revenue:,}""")
+        print(f"""Brand {revenue.get('title')} đã chạm tới mốc {warning_level}\
+         với doanh thu chưa được thanh toán là {remaining_revenue:,}""")
         if not list_mail.get(f"{id}"):
             continue
         if warning_level == 1:
@@ -187,7 +187,7 @@ def get_revenue_by_brand_id(brand_id):
 
 
 def check_threshold(threshold, revenue):
-    warning_level = False
+    warning_level = 0
     for level, value in threshold.items():
         if revenue >= value:
             warning_level = level
