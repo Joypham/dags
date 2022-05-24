@@ -67,11 +67,11 @@ def main():
         print(list_receiver)
         print(SUBJECT.format(brand_name=revenue.get('title')))
         print(CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue))
-        Email.send_mail(
-            receiver=list_receiver,
-            subject=SUBJECT.format(brand_name=revenue.get('title')),
-            content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
-        )
+        # Email.send_mail(
+        #     receiver=list_receiver,
+        #     subject=SUBJECT.format(brand_name=revenue.get('title')),
+        #     content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
+        # )
         create_log(id, warning_level)
 
 
