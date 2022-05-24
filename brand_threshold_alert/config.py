@@ -25,7 +25,7 @@ dag = DAG(
     schedule_interval=None,
     render_template_as_native_obj=True,
     description='DAG cảnh báo khi brand đạt ngưỡng doanh thu',
-    tags=["brand", "auto", "v0.1"]
+    tags=["brand", "auto", "v0.9"]
 )
 
 brand_threshold_alert = PythonOperator(
@@ -33,41 +33,5 @@ brand_threshold_alert = PythonOperator(
     task_id="brand_threshold_alert",
     python_callable=main
 )
-# create_report_file = PythonOperator(
-#     dag=dag,
-#     task_id="create_report_file",
-#     python_callable=create_report_file,
-#     op_kwargs={
-#         "report_date": "{{ti.xcom_pull(task_ids='generate_report_date', key='report_date')}}"
-#     }
-#
-# )
-# send_email_internal = PythonOperator(
-#     dag=dag,
-#     task_id="send_email_internal",
-#     python_callable=send_email_internal,
-#     op_kwargs={
-#         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
-#         "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
-#         "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
-#     }
-# )
-# upload_to_vna_sftp = PythonOperator(
-#     dag=dag,
-#     task_id="upload_to_vna_sftp",
-#     python_callable=upload_to_vna_sftp,
-#     op_kwargs={
-#         "result": "{{ti.xcom_pull(task_ids='create_report_file', key='result')}}",
-#         "list_file": "{{ti.xcom_pull(task_ids='create_report_file', key='list_file')}}",
-#     }
-# )
-# end_dag = PythonOperator(
-#     dag=dag,
-#     task_id="end_dag",
-#     python_callable=end_dag,
-#     op_kwargs={
-#         "report_date": "{{ti.xcom_pull(task_ids='create_report_file', key='report_date')}}",
-#     }
-# )
 
-brand_threshold_alert
+brand_threshold_alert   # noqa

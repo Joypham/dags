@@ -40,7 +40,7 @@ def main():
         remaining_revenue = revenue.get("revenue") + unrecorded_revenue - paid_amount
         print(f"Thông tin brand: {revenue.get('title')}")
         print(f"Tổng doanh thu đã ghi nhận trên hệ thống là {revenue.get('revenue'):,}")
-        print(f"Tổng doanh thu chưa ghi nhận trên hệ thống là {unrecorded_revenue}:,")
+        print(f"Tổng doanh thu chưa ghi nhận trên hệ thống là {unrecorded_revenue:,}")
         print(f"Tổng số tiền đã thanh toán là {paid_amount:,}")
         print(f"Số tiền chưa thanh toán là {remaining_revenue:,}")
         if remaining_revenue <= 0:
