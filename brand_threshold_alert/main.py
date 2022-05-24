@@ -53,8 +53,10 @@ def main():
             continue
 
         diff_latest_log_hours = (current - latest_log) // 3600
+        print(list_log)
         print(latest_level)
         print(type(latest_level))
+        print(warning_level)
         print(type(warning_level))
         print(diff_latest_log_hours)
         if latest_level == warning_level and diff_latest_log_hours < 24:
@@ -68,11 +70,11 @@ def main():
             list_receiver = list_mail.get(f"{id}").get("low")
         else:
             list_receiver = list_mail.get(f"{id}").get("high")
-        Email.send_mail(
-            receiver=list_receiver,
-            subject=SUBJECT.format(brand_name=revenue.get('title')),
-            content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
-        )
+        # Email.send_mail(
+        #     receiver=list_receiver,
+        #     subject=SUBJECT.format(brand_name=revenue.get('title')),
+        #     content=CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue)
+        # )
         create_log(id, warning_level)
 
 
