@@ -57,13 +57,16 @@ def main():
             print("Brand này đã được cảnh báo trong 24h vừa qua")
             continue
         print(f"""
-            Brand {revenue.get('title')} đã chạm tới mốc {warning_level} 
+            Brand {revenue.get('title')} đã chạm tới mốc {warning_level} \
             với doanh thu chưa được thanh toán là {remaining_revenue:,}
         """)
         if warning_level == 1:
             list_receiver = list_mail.get(f"{id}").get("low")
         else:
             list_receiver = list_mail.get(f"{id}").get("high")
+        print(list_receiver)
+        print(SUBJECT.format(brand_name=revenue.get('title')))
+        print(CONTENT.get(f"{warning_level}").format(brand_name=revenue.get('title'), revenue=remaining_revenue))
         Email.send_mail(
             receiver=list_receiver,
             subject=SUBJECT.format(brand_name=revenue.get('title')),
@@ -187,7 +190,8 @@ def get_revenue_by_brand_id(brand_id):
 
 
 def check_threshold(threshold, revenue):
+    warning_level = False
     for level, value in threshold.items():
         if revenue >= value:
-            return level
-    return False
+            warning_level = level
+    return warning_level
