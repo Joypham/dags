@@ -17,8 +17,6 @@ google_spread = google_cloud.open("Cảnh báo doanh thu đạt ngưỡng")
 
 
 def main():
-    Utility.date_string_to_timestamp("2022-05-24")
-    return
     # current = Utility.current_timestamp()
     # list_brand = get_brand_config()
     # list_payment = get_payment()
