@@ -23,9 +23,6 @@ def main():
     list_unrecorded_revenue = get_unrecorded_revenue()
     list_mail = get_list_mail()
     list_log = get_log()
-    print(list_brand)
-    print(list_payment)
-    print(list_unrecorded_revenue)
     for id, threshold in list_brand.items():
         print(f"Kiểm tra dữ liệu brand: {id}")
         revenue = get_revenue_by_brand_id(id)
@@ -40,7 +37,7 @@ def main():
             latest_level = 0
             latest_log = 0
 
-        remaining_revenue = revenue + unrecorded_revenue - paid_amount
+        remaining_revenue = revenue.get("revenue") + unrecorded_revenue - paid_amount
         print(f"Thông tin brand: {revenue.get('title')}")
         print(f"Tổng doanh thu đã ghi nhận trên hệ thống là {revenue.get('revenue')}")
         print(f"Tổng doanh thu chưa ghi nhận trên hệ thống là {unrecorded_revenue}")
@@ -194,36 +191,3 @@ def check_threshold(threshold, revenue):
         if revenue >= value:
             return level
     return False
-# def get_brand_list_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname, real='y'):
-#     '''
-#     real = 'y' => real, 'n' => test
-#     '''
-#     client_data = get_data_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname)
-#     try:
-#         real_dct = {'y': 1, 'n': 0}
-#         client_data = client_data[(client_data['status'] == 1) & (client_data['real'] == real_dct[real])]
-#         client_data['brand_id'] = client_data['brand_id'].replace('', np.nan)
-#         client_data = client_data.dropna(subset=['brand_id'])
-#         return client_data['brand_id'].unique().tolist()
-#     except Exception as e:
-#         raise e
-#
-#
-# def get_data_from_ggsheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS, spreadsheet, sheetname):
-#     client = conn_to_google_sheet(google_sheet_scope, PO_APP_GOOGLE_SHEET_CREDENTIALS)
-#     sheet = client.open_by_key(spreadsheet).worksheet(sheetname)
-#     client_data = sheet.get_all_records()
-#     if not client_data:
-#         client_data = pd.DataFrame(columns=SHEET_COL_DICT[sheetname])
-#     else:
-#         client_data = pd.DataFrame.from_dict(client_data)
-#     return client_data
-#
-#
-# def conn_to_google_sheet(google_sheet_scope, googlesheet_privatekey):
-#     google_sheet_scope = google_sheet_scope
-#     # add credentials to the account
-#     creds = ServiceAccountCredentials.from_json_keyfile_name(googlesheet_privatekey, google_sheet_scope)
-#     # authorize the clientsheet
-#     client = gspread.authorize(creds)
-#     return client
