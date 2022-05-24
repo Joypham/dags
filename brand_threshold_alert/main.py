@@ -195,4 +195,4 @@ def check_threshold(threshold, revenue):
     for level, value in threshold.items():
         if revenue >= value:
             warning_level = level
-    return warning_level
+    return int(warning_level)
