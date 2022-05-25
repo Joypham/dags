@@ -6,7 +6,6 @@ from brand_threshold_alert.main import main
 
 default_args = {
     'depends_on_past': False,
-    'catchup': False,
     'email_on_failure': False,
     'email_on_retry': False,
     'retry_delay': timedelta(minutes=1),
@@ -21,6 +20,7 @@ dag = DAG(
     'brand_threshold_alert',
     default_args=default_args,
     max_active_runs=1,
+    catchup=False,
     concurrency=32,
     schedule_interval="0 * * * *",
     render_template_as_native_obj=True,
