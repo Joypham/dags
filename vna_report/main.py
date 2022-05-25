@@ -27,8 +27,8 @@ def generate_report_date(report_date=None, **kwargs):
 
 def create_report_file(report_date, **kwargs):
     task_instance = kwargs['task_instance']
-    report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
-    report_date_filename = report_date_object.strftime('%d%m%Y')
+    report_date_object = datetime.strptime(report_date, '%Y-%m-%d')
+    report_date_filename = report_date_object.strftime('%Y%m%d')
 
     try:
         order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
