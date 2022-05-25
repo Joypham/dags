@@ -103,16 +103,15 @@ def send_email_internal(result, report_date, list_file):
 
 
 def upload_to_vna_sftp(result, list_file):
-    print("upload vna")
-    # if result is True and list_file is not None:
-    #     cnopts = sftp.CnOpts()
-    #     cnopts.hostkeys = None
-    #     for host in VNA_HOST:
-    #         server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
-    #         with server.cd(VNA_FOLDER_PATH):  # chdir to public
-    #             for file in list_file:
-    #                 server.put(file.get("path"))
-    #         server.close()
+    if result is True and list_file is not None:
+        cnopts = sftp.CnOpts()
+        cnopts.hostkeys = None
+        for host in VNA_HOST:
+            server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
+            with server.cd(VNA_FOLDER_PATH):  # chdir to public
+                for file in list_file:
+                    server.put(file.get("path"))
+            server.close()
 
 
 def end_dag(report_date):
