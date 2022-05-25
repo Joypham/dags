@@ -57,14 +57,17 @@ def create_report_file(report_date, **kwargs):
             value=[
                 {
                     "title": order_list_filename,
+                    "vna_path": "VNA_Evoucher_Orderlist",
                     "path": f"{daily_report_path}/{order_list_filename}"
                 },
                 {
                     "title": code_usage_filename,
+                    "vna_path": "VNA_Evoucher_Code_Used",
                     "path": f"{daily_report_path}/{code_usage_filename}"
                 },
                 {
                     "title": cancelled_order_filename,
+                    "vna_path": "VNA_Evoucher_Orderlist_Cancel",
                     "path": f"{daily_report_path}/{cancelled_order_filename}"
                 },
             ]
@@ -108,8 +111,8 @@ def upload_to_vna_sftp(result, list_file):
         cnopts.hostkeys = None
         for host in VNA_HOST:
             server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
-            with server.cd(VNA_FOLDER_PATH):  # chdir to public
-                for file in list_file:
+            for file in list_file:
+                with server.cd(f"{VNA_FOLDER_PATH}/{file.get('vna_path')}"):  # chdir to public
                     server.put(file.get("path"))
             server.close()
 
