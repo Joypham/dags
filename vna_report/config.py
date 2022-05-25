@@ -13,7 +13,7 @@ default_args = {
 
     'owner': 'nammk',
     'email': ['nam.mk@urbox.vn'],
-    'start_date': datetime(2022, 5, 26, 0, 0),
+    'start_date': datetime(2022, 5, 25, 0, 0),
     'retries': 3
 }
 
