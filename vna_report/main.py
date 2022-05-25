@@ -31,9 +31,9 @@ def create_report_file(report_date, **kwargs):
     report_date_filename = report_date_object.strftime('%Y%m%d')
 
     try:
-        order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
+        order_list_filename = f"VNA_Evoucher_Orderlist_{report_date_filename}.xlsx"
         code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
-        cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
+        cancelled_order_filename = f"VNA_Evoucher_Orderlist_Cancel_{report_date_filename}.xlsx"
 
         daily_report_path = f"{STORAGE_DIR}/vna_report/{report_date}"
 
