@@ -7,14 +7,13 @@ from vna_report.main import generate_report_date, create_report_file, send_email
 
 default_args = {
     'depends_on_past': False,
-    'catchup': False,
     'email_on_failure': False,
     'email_on_retry': False,
     'retry_delay': timedelta(minutes=1),
 
     'owner': 'nammk',
     'email': ['nam.mk@urbox.vn'],
-    'start_date': datetime(2022, 5, 18, 0, 0),
+    'start_date': datetime(2022, 5, 25, 0, 0),
     'retries': 3
 }
 
@@ -22,11 +21,12 @@ dag = DAG(
     'vna_report_upload',
     default_args=default_args,
     max_active_runs=1,
+    catchup=False,
     concurrency=32,
-    schedule_interval=None,
+    schedule_interval="0 0 * * *",
     render_template_as_native_obj=True,
     description='DAG xuất báo cáo cho VNA. Nếu muốn xuất lại theo ngày nhất định thì chạy bằng Trigger DAG w/ config',
-    tags=["vna", "hybrid", "v0.9"],
+    tags=["vna", "hybrid", "v1.0"],
     params={
         "report_date": "%Y-%m-%d"
     }

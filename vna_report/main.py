@@ -27,13 +27,13 @@ def generate_report_date(report_date=None, **kwargs):
 
 def create_report_file(report_date, **kwargs):
     task_instance = kwargs['task_instance']
-    report_date_object = datetime.strptime(report_date, '%Y-%m-%d') - timedelta(days=1)
-    report_date_filename = report_date_object.strftime('%d%m%Y')
+    report_date_object = datetime.strptime(report_date, '%Y-%m-%d')
+    report_date_filename = report_date_object.strftime('%Y%m%d')
 
     try:
-        order_list_filename = f"VNA_Evoucher_Order_List_{report_date_filename}.xlsx"
+        order_list_filename = f"VNA_Evoucher_Orderlist_{report_date_filename}.xlsx"
         code_usage_filename = f"VNA_Evoucher_Code_Used_{report_date_filename}.xlsx"
-        cancelled_order_filename = f"VNA_Evoucher_Order_List_Cancel_{report_date_filename}.xlsx"
+        cancelled_order_filename = f"VNA_Evoucher_Orderlist_Cancel_{report_date_filename}.xlsx"
 
         daily_report_path = f"{STORAGE_DIR}/vna_report/{report_date}"
 
@@ -57,14 +57,17 @@ def create_report_file(report_date, **kwargs):
             value=[
                 {
                     "title": order_list_filename,
+                    "vna_path": "VNA_Evoucher_Orderlist",
                     "path": f"{daily_report_path}/{order_list_filename}"
                 },
                 {
                     "title": code_usage_filename,
+                    "vna_path": "VNA_Evoucher_Code_Used",
                     "path": f"{daily_report_path}/{code_usage_filename}"
                 },
                 {
                     "title": cancelled_order_filename,
+                    "vna_path": "VNA_Evoucher_Orderlist_Cancel",
                     "path": f"{daily_report_path}/{cancelled_order_filename}"
                 },
             ]
@@ -103,16 +106,15 @@ def send_email_internal(result, report_date, list_file):
 
 
 def upload_to_vna_sftp(result, list_file):
-    print("upload vna")
-    # if result is True and list_file is not None:
-    #     cnopts = sftp.CnOpts()
-    #     cnopts.hostkeys = None
-    #     for host in VNA_HOST:
-    #         server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
-    #         with server.cd(VNA_FOLDER_PATH):  # chdir to public
-    #             for file in list_file:
-    #                 server.put(file.get("path"))
-    #         server.close()
+    if result is True and list_file is not None:
+        cnopts = sftp.CnOpts()
+        cnopts.hostkeys = None
+        for host in VNA_HOST:
+            server = sftp.Connection(host=host, username='urbox', password='Jul#020721Evoucher', cnopts=cnopts)
+            for file in list_file:
+                with server.cd(f"{VNA_FOLDER_PATH}/{file.get('vna_path')}"):  # chdir to public
+                    server.put(file.get("path"))
+            server.close()
 
 
 def end_dag(report_date):
