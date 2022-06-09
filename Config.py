@@ -30,6 +30,15 @@ REDSHIFT_CONFIG = {
     "password": "RB25yvtUMZdyRXbg"
 }
 
+# Sentry Connection
+SENTRY_CONFIG = {
+    "host": "urclient.ckkags9rp5be.ap-southeast-1.rds.amazonaws.com",
+    "port": "3306",
+    "dbname": "sentry",
+    "user": "hanhph",
+    "password": "pQl417j++5qR"
+}
+
 # Email
 EMAIL_SENDER_NAME = "Team Data"
 EMAIL_SENDER_ADDRESS = "datateam@urbox.vn"
@@ -38,8 +47,8 @@ EMAIL_SENDER_PASSWORD = "34d#7#39H5^E%^ck"
 # Telegram
 TELEGRAM_BOT_TOKEN = "5272539184:AAHTU4Y-ZpcAtDf10LZVua43z4bdu858bAI"
 TELEGRAM_CHAT_IDS = [
-    1435368685,     # nam.mk
-    5038057494,     # hanh.ph
+    1435368685,  # nam.mk
+    5038057494,  # hanh.ph
 ]
 
 # Ect
