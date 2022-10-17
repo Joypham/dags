@@ -103,13 +103,40 @@ REDEMPTION_AT_CURRENT_HOUR = """
     SELECT 
         COUNT(cart_detail.id) as so_luot_doi, 
         nvl(sum (cart_detail.money),0) as luong_doi
-    from urbox.cart_detail
+    FROM urbox.cart_detail
         JOIN urbox.gift_code on gift_code.cart_detail_id = cart_detail.id and gift_code.code_using <> ''
-        join urbox.gift on gift.id = cart_detail.gift_id
-        join urbox.brand on brand.id = gift.brand_id and brand.id = 36
+        JOIN urbox.gift on gift.id = cart_detail.gift_id
+        JOIN urbox.brand on brand.id = gift.brand_id and brand.id = 36
     WHERE 
         cart_detail.pay_status = 2 AND 
         cart_detail.status = 2 AND card_id > 0 AND 
         CAST ( PUBLIC.convert_timezone ( cart_detail.created ) AS DATE ) = '{date_now}' AND 
         EXTRACT ( hour FROM PUBLIC.convert_timezone ( cart_detail.created )) in ('{one_hours_from_now}')
+"""
+
+TOP_APP_ALERT = """
+    WITH cte AS
+    (
+    SELECT 
+            cart_detail.app_id,
+            COUNT(cart_detail.id) as so_luot_doi, 
+            nvl(SUM (cart_detail.money),0) as luong_doi
+        FROM urbox.cart_detail
+            JOIN urbox.gift_code on gift_code.cart_detail_id = cart_detail.id and gift_code.code_using <> ''
+            JOIN urbox.gift on gift.id = cart_detail.gift_id
+            JOIN urbox.brand on brand.id = gift.brand_id and brand.id = 36
+        WHERE 
+            cart_detail.pay_status = 2 AND 
+            cart_detail.status = 2 AND card_id > 0 AND 
+            CAST ( PUBLIC.convert_timezone ( cart_detail.created ) AS DATE ) = '{date_now}' AND 
+            EXTRACT ( hour FROM PUBLIC.convert_timezone ( cart_detail.created )) in ('{one_hours_from_now}')
+            GROUP BY
+                    cart_detail.app_id
+    )
+    SELECT 
+        app."name",
+         cte.* 
+    FROM cte 
+        JOIN urbox.app on app.id = cte.app_id
+    ORDER BY luong_doi DESC
 """

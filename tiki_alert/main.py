@@ -5,7 +5,7 @@ import pandas as pd
 from Email import Email
 from sqlalchemy import create_engine
 
-URI = f"redshift+redshift_connector://{REDSHIFT_CONFIG['user']}:{REDSHIFT_CONFIG['password']}@{REDSHIFT_CONFIG['host']}:{REDSHIFT_CONFIG['port']}/{REDSHIFT_CONFIG['dbname']}"
+URI = f"postgresql+pg8000://{REDSHIFT_CONFIG['user']}:{REDSHIFT_CONFIG['password']}@{REDSHIFT_CONFIG['host']}:{REDSHIFT_CONFIG['port']}/{REDSHIFT_CONFIG['dbname']}"
 redshift_connection = create_engine(URI)
 pd.set_option("display.max_rows", None, "display.max_columns", 50, 'display.width', 1000)
 
@@ -49,18 +49,20 @@ def thredsold_by_total_redemption(report_datetime: datetime = datetime.now(), **
     list_hour = re.sub(r',(?=\))', '', str(list_hour))
     avg_so_luot_doi = pd.read_sql_query(
         sql=AVG_REDEMPTION_RECORDS.format(start_date=start_date, end_7_date=end_7_date, list_hour=list_hour),
-        con=redshift_connection)
+        con=redshift_connection
+    )
     avg_so_luot_doi = avg_so_luot_doi.values.tolist()[0][0]
 
     avg_luong_doi = pd.read_sql_query(
         sql=AVG_REDEMPTION.format(start_date=start_date, end_7_date=end_7_date, list_hour=list_hour),
-        con=redshift_connection)
+        con=redshift_connection
+    )
     avg_luong_doi = avg_luong_doi.values.tolist()[0][0]
     return {'avg_so_luot_doi': avg_so_luot_doi, 'avg_luong_doi': avg_luong_doi}
 
 
 def get_total_redemption_at_current_hour(report_datetime: datetime = datetime.now(), **kwargs):
-    k = thredsold_by_total_redemption(report_datetime=report_datetime)
+    thredsold = thredsold_by_total_redemption(report_datetime=report_datetime)
 
     # Thuc te
     date_now = report_datetime.date()
@@ -73,8 +75,8 @@ def get_total_redemption_at_current_hour(report_datetime: datetime = datetime.no
     luong_doi_at_current_hour = redemption_at_current_hour['luong_doi'].tolist()[0]
 
     # So sanh tinh ty trong
-    avg_so_luot_doi = k['avg_so_luot_doi']
-    avg_luong_doi = k['avg_luong_doi']
+    avg_so_luot_doi = thredsold['avg_so_luot_doi']
+    avg_luong_doi = thredsold['avg_luong_doi']
     rate_luot_doi = int((so_luot_doi_at_current_hour - avg_so_luot_doi) / avg_so_luot_doi * 100)
     rate_luong_doi = int((luong_doi_at_current_hour - avg_luong_doi) / avg_luong_doi * 100)
     diff_luot_doi = so_luot_doi_at_current_hour - avg_so_luot_doi
@@ -118,25 +120,10 @@ def get_range_alert(report_datetime=None, **kwargs):
 
 
 def push_notification(report_datetime: datetime = None, **kwargs):
-    '''
-        drop TABLE ub_rawdata.tiki_monitoring;
-        create table ub_rawdata.tiki_monitoring(
-        avg_so_luot_doi INT,
-        so_luot_doi_at_current_hour INT,
-        avg_luong_doi BIGINT,
-        luong_doi_at_current_hour BIGINT,
-        rate_luot_doi INT,
-        rate_luong_doi INT,
-        diff_luot_doi INT,
-        diff_luong_doi BIGINT,
-        type VARCHAR (64),
-        time_range VARCHAR (64),
-        level VARCHAR (32),
-        created_at timestamp DEFAULT SYSDATE)
-    '''
     # report_datetime =kwargs['dag_run'].conf['report_datetime']
     # execution_date = (data_interval_start + timedelta(hours=7))
     # report_datetime = datetime.strptime(report_datetime, "%Y-%m-%d %H:%M:%S") if report_datetime else execution_date
+
     report_datetime = datetime.strptime(report_datetime, '%Y-%m-%d %H:%M:%S')
 
     k2 = get_range_alert(report_datetime=report_datetime)
@@ -144,23 +131,27 @@ def push_notification(report_datetime: datetime = None, **kwargs):
 
     df.to_sql("tiki_monitoring", con=redshift_connection, if_exists='append', index=False,
               schema='ub_rawdata')
-    diff_luot_doi = k2['diff_luot_doi']
-    luong_doi_at_current_hour = k2['luong_doi_at_current_hour']
+    luong_doi_at_current_hour = k2.get('luong_doi_at_current_hour')
     level = k2.get("level")
     content = ALERT_EMAIL_CONTENT.format(
-        time_range=k2['time_range'],
-        type=k2['type'],
+        time_range=k2.get('time_range'),
+        type=k2.get('type'),
         level=level,
-        rate_luong_doi=k2['rate_luong_doi'],
-        rate_luot_doi=k2['rate_luot_doi'],
-        avg_so_luot_doi=k2['avg_so_luot_doi'],
-        so_luot_doi_at_current_hour=k2['so_luot_doi_at_current_hour'],
-        avg_luong_doi="{:,}".format(k2['avg_luong_doi']),
-        luong_doi_at_current_hour="{:,}".format(k2['luong_doi_at_current_hour'])
+        rate_luong_doi=k2.get('rate_luong_doi'),
+        rate_luot_doi=k2.get('rate_luot_doi'),
+        avg_so_luot_doi=k2.get('avg_so_luot_doi'),
+        so_luot_doi_at_current_hour=k2.get('so_luot_doi_at_current_hour'),
+        avg_luong_doi="{:,}".format(k2.get('avg_luong_doi')),
+        luong_doi_at_current_hour="{:,}".format(k2.get('luong_doi_at_current_hour'))
     )
     if level not in ('level_negative', 'level_0') and luong_doi_at_current_hour > 15000000:
         Email.send_mail(
             receiver=TIKI_ALERT_EMAIL,
-            subject=f"[Tiki warning] Cảnh báo lượng đổi tiki vượt ngưỡng {k2['time_range']}",
+            subject=f"[Tiki warning] Cảnh báo lượng đổi tiki vượt ngưỡng {k2.get('time_range')}",
             content=content
         )
+
+
+if __name__ == "__main__":
+    # push_notification()
+    thredsold_by_total_redemption()

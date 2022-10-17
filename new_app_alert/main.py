@@ -2,7 +2,7 @@
 # from brand_threshold_alert.param import *
 #
 # from datetime import datetime
-# from Config import *
+# from file import *
 # from Email import Email
 # from Utility import Utility
 #

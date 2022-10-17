@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta
-
-from Config import *
 from Email import Email
 from Utility import Utility
 from vna_report.param import *
-
 import os
 import pandas
 import pysftp as sftp
 import psycopg2
+from Config import *
 
 redshift_connection = psycopg2.connect(**REDSHIFT_CONFIG)
 

@@ -1,9 +1,8 @@
 import requests
-from Sentry.param import *
+from sentry.param import *
 from Config import *
 import pandas as pd
 import json
-from Email import Email
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
@@ -13,6 +12,10 @@ sentry_connection = create_engine(URI)
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=sentry_connection))
 
 pd.set_option("display.max_rows", None, "display.max_columns", 50, 'display.width', 1000)
+
+'''
+    https://docs.sentry.io/api/events/
+'''
 
 
 def generate_report_date(report_date=None, **kwargs):
@@ -95,7 +98,8 @@ def get_all_project():
 
 
 def get_all_events_by_project(report_date: str = None, **kwargs):
-    report_date = datetime.strptime(report_date, '%Y-%m-%d')
+    # report_date = datetime.strptime(report_date, '%Y-%m-%d')
+    report_date = datetime.strptime('2022-09-15', '%Y-%m-%d')
     get_all_project_slugs = pd.read_sql_query(
         sql=QUERY_GET_PROJECT_SLUGS,
         con=sentry_connection)
@@ -155,13 +159,15 @@ def get_all_events_by_project(report_date: str = None, **kwargs):
                         sentry_date = str(cursor['dateCreated'])[:10]
                         sentry_date = datetime.strptime(sentry_date, '%Y-%m-%d')
                         if sentry_date > report_date:
-                            df = df.append(k, ignore_index=True)
+                            df = pd.concat([df, k])
+                            # df = df.append(k, ignore_index=True)
                         else:
                             flag = False
                             break
                     except:
                         print(f"error: {cursor}")
-            df.drop_duplicates()
+            df.drop_duplicates().reset_index(drop = True)
+            # print(df)
             for i in range(0, len(df), 100):
                 # TRUNCATE table ub_rawdata.sentry_issues
                 batch_df = df.loc[i:i + 99]
@@ -170,3 +176,7 @@ def get_all_events_by_project(report_date: str = None, **kwargs):
                 db_session.commit()
                 print(batch_df.tail(3))
             sync_data_from_tmp_to_final_table()
+
+
+if __name__ == "__main__":
+    get_all_events_by_project()

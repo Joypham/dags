@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from Sentry.main import generate_report_date, get_all_events_by_project
+from sentry.main import generate_report_date, get_all_events_by_project
 
 # Crontab scheduler: https://airflow.apache.org/docs/apache-airflow/1.10.1/scheduler.html
 

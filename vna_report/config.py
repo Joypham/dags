@@ -1,9 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-
 from vna_report.main import generate_report_date, create_report_file, send_email_internal, upload_to_vna_sftp, end_dag
-
 
 default_args = {
     'depends_on_past': False,
@@ -25,7 +23,7 @@ dag = DAG(
     concurrency=32,
     schedule_interval="0 0 * * *",
     render_template_as_native_obj=True,
-    description='DAG xuất báo cáo cho VNA. Nếu muốn xuất lại theo ngày nhất định thì chạy bằng Trigger DAG w/ config',
+    description='DAG xuất báo cáo cho VNA. Nếu muốn xuất lại theo ngày nhất định thì chạy bằng Trigger DAG w/ file',
     tags=["vna", "hybrid", "v1.0"],
     params={
         "report_date": "%Y-%m-%d"
